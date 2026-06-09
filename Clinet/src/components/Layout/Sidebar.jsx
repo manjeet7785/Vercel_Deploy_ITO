@@ -1,0 +1,82 @@
+import React from 'react';
+import { NavLink } from 'react-router-dom';
+import { useAuth } from '../../hooks/useAuth';
+import {
+  FiLayout,
+  FiUsers,
+  FiFileText,
+  FiTruck,
+  FiDollarSign,
+  FiFolder,
+  FiShield,
+  FiBarChart2,
+  FiSettings
+} from 'react-icons/fi';
+
+export default function Sidebar() {
+  const { user } = useAuth();
+
+  const menuItems = [
+    { to: '/crm/dashboard', label: 'Dashboard', icon: FiLayout },
+    { to: '/crm/leads', label: 'Leads', icon: FiUsers },
+    { to: '/crm/quotations', label: 'Quotations', icon: FiFileText },
+    { to: '/crm/dispatches', label: 'Dispatches', icon: FiTruck },
+    { to: '/crm/payments', label: 'Payments', icon: FiDollarSign },
+    { to: '/crm/documents', label: 'Documents', icon: FiFolder },
+  ];
+
+  const adminMenuItems = [
+    { to: '/crm/users', label: 'Users', icon: FiSettings },
+    { to: '/crm/security', label: 'Security', icon: FiShield },
+    { to: '/crm/reports', label: 'Reports', icon: FiBarChart2 },
+  ];
+
+  return (
+    <aside className="w-64 bg-gray-900 text-white flex flex-col">
+      <div className="p-6 border-b border-gray-800">
+        <h1 className="text-xl font-bold">ITO Exim CRM</h1>
+        <p className="text-sm text-gray-400 mt-1">{user?.role}</p>
+      </div>
+
+      <nav className="flex-1 py-4">
+        <div className="px-4 mb-2">
+          <p className="text-xs text-gray-500 uppercase tracking-wider">Main</p>
+        </div>
+        {menuItems.map((item) => (
+          <NavLink
+            key={item.to}
+            to={item.to}
+            className={({ isActive }) =>
+              `flex items-center space-x-3 px-6 py-3 text-gray-300 hover:bg-gray-800 hover:text-white transition-colors ${isActive ? 'bg-gray-800 text-white border-r-4 border-primary-500' : ''
+              }`
+            }
+          >
+            <item.icon size={20} />
+            <span>{item.label}</span>
+          </NavLink>
+        ))}
+
+        {(user?.role === 'ADMIN' || user?.role === 'MANAGER') && (
+          <>
+            <div className="px-4 mt-6 mb-2">
+              <p className="text-xs text-gray-500 uppercase tracking-wider">Administration</p>
+            </div>
+            {adminMenuItems.map((item) => (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                className={({ isActive }) =>
+                  `flex items-center space-x-3 px-6 py-3 text-gray-300 hover:bg-gray-800 hover:text-white transition-colors ${isActive ? 'bg-gray-800 text-white border-r-4 border-primary-500' : ''
+                  }`
+                }
+              >
+                <item.icon size={20} />
+                <span>{item.label}</span>
+              </NavLink>
+            ))}
+          </>
+        )}
+      </nav>
+    </aside>
+  );
+}
