@@ -97,6 +97,11 @@ const ClientLogin = () => {
                 {showPassword ? <FiEyeOff className="h-5 w-5" /> : <FiEye className="h-5 w-5" />}
               </button>
             </div>
+            <div className="flex justify-end text-xs">
+              <Link to="/forgot-password" className="font-semibold text-fuchsia-600 hover:text-fuchsia-500 transition">
+                Forgot password?
+              </Link>
+            </div>
           </div>
 
           <button

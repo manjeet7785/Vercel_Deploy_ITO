@@ -1,14 +1,25 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'https://india-i1di.onrender.com/api' || 'http://localhost:5000/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || 'https://india-i1di.onrender.com/api';
 
 const axiosInstance = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
+
   timeout: 10000,
 });
+
+// const API_BASE_URL = 'https://india-i1di.onrender.com/api' || 'http://localhost:5000/api';
+
+// const axiosInstance = axios.create({
+//   baseURL: API_BASE_URL,
+//   headers: {
+//     'Content-Type': 'application/json',
+//   },
+//   timeout: 10000,
+// });
 
 
 axiosInstance.interceptors.request.use(

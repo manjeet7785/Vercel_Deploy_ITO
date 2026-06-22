@@ -23,7 +23,18 @@ const allowedStageTransitions = {
 
 function canAccessLead(user, lead) {
   if (!user) return false;
-  if (user.role === 'ADMIN' || user.role === 'MANAGER' || user.role === 'HR') return true;
+  if (
+    user.role === 'ADMIN' ||
+    user.role === 'MANAGER' ||
+    user.role === 'HR' ||
+    user.role === 'ACCOUNTS' ||
+    user.role === 'FINANCE' ||
+    user.paymentPermission === true ||
+    user.dispatchPermission === true ||
+    user.quotationPermission === true
+  ) {
+    return true;
+  }
   if (lead.assignedTo && lead.assignedTo.toString() === user._id.toString()) return true;
   return false;
 }
@@ -57,7 +68,16 @@ async function listLeads(user, query = {}) {
   const filter = {};
   if (query.stage) filter.stage = query.stage;
   
-  if (user.role !== 'ADMIN' && user.role !== 'MANAGER' && user.role !== 'HR') {
+  if (
+    user.role !== 'ADMIN' &&
+    user.role !== 'MANAGER' &&
+    user.role !== 'HR' &&
+    user.role !== 'ACCOUNTS' &&
+    user.role !== 'FINANCE' &&
+    user.paymentPermission !== true &&
+    user.dispatchPermission !== true &&
+    user.quotationPermission !== true
+  ) {
     filter.assignedTo = user._id;
   }
   

@@ -57,6 +57,16 @@ export const authApi = {
     return response.data;
   },
 
+  async forgotPassword(email) {
+    const response = await axiosInstance.post('/auth/forgot-password', { email });
+    return response.data;
+  },
+
+  async resetPassword(email, otp, newPassword) {
+    const response = await axiosInstance.post('/auth/reset-password', { email, otp, newPassword });
+    return response.data;
+  },
+
   getToken() {
     return localStorage.getItem('token');
   },

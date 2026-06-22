@@ -549,6 +549,86 @@ async function requestDeviceApproval(req, res, next) {
   }
 }
 
+async function forgotPassword(req, res, next) {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return fail(res, 400, 'VALIDATION_FAILED', 'Email is required');
+    }
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      return fail(res, 404, 'USER_NOT_FOUND', 'User with this email does not exist');
+    }
+
+    const otp = generateOtp();
+    const otpHash = await bcrypt.hash(otp, 10);
+
+    await otpModel.deleteMany({ email: user.email });
+    await otpModel.create({
+      email: user.email,
+      user: user._id,
+      otpHash
+    });
+
+    await sendEmail(user.email, 'Password Reset OTP Code', null, getOtpHtml(otp));
+
+    return ok(res, {}, 'Password reset OTP sent successfully to your email', 200, req);
+  } catch (error) {
+    next(error);
+  }
+}
+
+async function resetPassword(req, res, next) {
+  try {
+    const { email, otp, newPassword } = req.body;
+    if (!email || !otp || !newPassword) {
+      return fail(res, 400, 'VALIDATION_FAILED', 'Email, OTP and new password are required');
+    }
+
+    const otpRecord = await otpModel.findOne({ email }).sort({ createdAt: -1 });
+    if (!otpRecord) {
+      return fail(res, 400, 'INVALID_OTP', 'No OTP request found for this email');
+    }
+
+    const elapsed = Date.now() - new Date(otpRecord.createdAt).getTime();
+    if (elapsed > 15 * 60 * 1000) {
+      return fail(res, 400, 'EXPIRED_OTP', 'OTP has expired. Please request a new one.');
+    }
+
+    const matched = await bcrypt.compare(otp, otpRecord.otpHash);
+    if (!matched) {
+      return fail(res, 401, 'INVALID_OTP', 'Invalid OTP code');
+    }
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      return fail(res, 404, 'USER_NOT_FOUND', 'User not found');
+    }
+
+    const passwordHash = await bcrypt.hash(newPassword, 10);
+    user.passwordHash = passwordHash;
+    await user.save();
+
+    await otpModel.deleteMany({ email: user.email });
+
+    await recordAudit({
+      actorId: user._id,
+      actionType: 'PASSWORD_RESET',
+      entityType: 'USER',
+      entityId: user._id.toString(),
+      severity: 'MEDIUM',
+      ipAddress: req.ip,
+      deviceHash: req.headers['x-device-hash'] || '',
+      metadata: { email }
+    });
+
+    return ok(res, {}, 'Password reset successful', 200, req);
+  } catch (error) {
+    next(error);
+  }
+}
+
 module.exports = {
   register,
   login,
@@ -562,5 +642,8 @@ module.exports = {
   getMe,
   refreshToken,
   logoutAll,
-  verifyEmail
+  verifyEmail,
+  forgotPassword,
+  resetPassword
 };
+

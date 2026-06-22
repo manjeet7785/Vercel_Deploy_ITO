@@ -20,7 +20,7 @@ router.post('/score', async (req, res, next) => {
 });
 
 
-router.get('/', checkPermission('leadPermission', 'taskPermission'), getLeadsList);
+router.get('/', checkPermission('leadPermission', 'taskPermission', 'paymentPermission', 'dispatchPermission', 'quotationPermission'), getLeadsList);
 router.get('/unassigned', rbac('ADMIN', 'MANAGER', 'HR'), checkPermission('leadPermission', 'taskPermission'), async (req, res, next) => {
   try {
     const Lead = require('./lead.model');
@@ -32,7 +32,7 @@ router.get('/unassigned', rbac('ADMIN', 'MANAGER', 'HR'), checkPermission('leadP
   }
 });
 
-router.get('/:id', checkPermission('leadPermission', 'taskPermission'), getLeadDetails);
+router.get('/:id', checkPermission('leadPermission', 'taskPermission', 'paymentPermission', 'dispatchPermission', 'quotationPermission'), getLeadDetails);
 router.patch('/:id/stage', checkPermission('leadPermission', 'taskPermission'), changeLeadStage);
 router.patch('/:id', checkPermission('leadPermission', 'taskPermission'), changeLeadStage); 
 

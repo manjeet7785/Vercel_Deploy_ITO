@@ -17,6 +17,7 @@ import ClientSignup from './pages/public/ClientSignup';
 import EmployeeSignup from './pages/public/EmployeeSignup';
 import DevicePending from './pages/public/DevicePending';
 import VerifyEmail from './pages/public/VerifyEmail';
+import ForgotPassword from './pages/public/ForgotPassword';
 
 import Dashboard from './pages/crm/Dashboard';
 import Leads from './pages/crm/Leads';
@@ -104,7 +105,8 @@ function AppLayout() {
     '/client-signup',
     '/employee-signup',
     '/device-pending',
-    '/verify-email'
+    '/verify-email',
+    '/forgot-password'
   ].includes(location.pathname);
 
   if (loading) {
@@ -126,6 +128,7 @@ function AppLayout() {
         <Route path="/employee-signup" element={<EmployeeSignup />} />
         <Route path="/device-pending" element={<DevicePending />} />
         <Route path="/verify-email" element={<VerifyEmail />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
       </Routes>
     );
   }

@@ -2,6 +2,18 @@ const User = require('./user.model');
 const bcrypt = require('bcryptjs');
 
 async function createUser(data) {
+  const existingUser = await User.findOne({
+    $or: [
+      { email: data.email },
+      { employeeId: data.employeeId }
+    ]
+  });
+  if (existingUser) {
+    const error = new Error('User with this email or Employee ID already exists');
+    error.code = 11000;
+    throw error;
+  }
+
   const passwordHash = await bcrypt.hash(data.password || 'ItoPass123!', 10);
   return User.create({
     employeeId: data.employeeId,
