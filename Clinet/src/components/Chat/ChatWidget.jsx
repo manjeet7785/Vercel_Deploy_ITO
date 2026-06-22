@@ -15,7 +15,7 @@ export default function ChatWidget() {
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef(null);
 
-  
+
   useEffect(() => {
     const savedSessionId = sessionStorage.getItem('chatSessionId');
     if (savedSessionId) {
