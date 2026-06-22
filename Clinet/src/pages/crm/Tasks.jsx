@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { leadsApi } from '../../api/leads';
 import { useAuth } from '../../hooks/useAuth';
 import { 
@@ -19,22 +19,23 @@ import {
 import toast from 'react-hot-toast';
 
 export default function Tasks() {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const [leads, setLeads] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [activeTab, setActiveTab] = useState('PENDING'); // PENDING, COMPLETED, ALL
+  const [activeTab, setActiveTab] = useState('PENDING'); 
   const [selectedLead, setSelectedLead] = useState(null);
   const [showPerformModal, setShowPerformModal] = useState(false);
   
-  // Form state
-  const [actionType, setActionType] = useState('STAGE_CHANGE'); // STAGE_CHANGE, ACTIVITY_ONLY
+  
+  const [actionType, setActionType] = useState('STAGE_CHANGE'); 
   const [nextStage, setNextStage] = useState('');
   const [activityNote, setActivityNote] = useState('');
   const [nextFollowup, setNextFollowup] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
-  // Business workflow stage transitions
+  
   const allowedTransitions = {
     NEW_LEAD: ['ASSIGNED', 'CLOSED_LOST'],
     ASSIGNED: ['CONTACTED', 'CLOSED_LOST'],
@@ -75,7 +76,7 @@ export default function Tasks() {
     setActivityNote('');
     setNextFollowup('');
     
-    // Automatically set default next stage based on allowed transitions
+    
     const options = allowedTransitions[lead.stage] || [];
     if (options.length > 0) {
       setActionType('STAGE_CHANGE');
@@ -128,7 +129,7 @@ export default function Tasks() {
     }
   };
 
-  // Helper colors for stages
+  
   const getStageColor = (stage) => {
     const colors = {
       NEW_LEAD: 'bg-blue-50 text-blue-700 border-blue-100',
@@ -146,7 +147,7 @@ export default function Tasks() {
     return colors[stage] || 'bg-slate-50 text-slate-700 border-slate-100';
   };
 
-  // Filter logic based on tabs and search term
+  
   const filteredLeads = leads.filter(lead => {
     const matchesSearch = 
       lead.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -162,7 +163,7 @@ export default function Tasks() {
     return matchesSearch && matchesTab;
   });
 
-  // Derived stats
+  
   const totalTasks = leads.length;
   const pendingCount = leads.filter(l => l.stage !== 'CLOSED_WON' && l.stage !== 'CLOSED_LOST').length;
   const completedCount = leads.filter(l => l.stage === 'CLOSED_WON').length;
@@ -170,7 +171,7 @@ export default function Tasks() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Task Performance Board</h1>
@@ -221,7 +222,7 @@ export default function Tasks() {
         </div>
       </div>
 
-      {/* Filter Options */}
+      
       <div className="card p-4 bg-white shadow-sm border border-slate-100 rounded-2xl flex flex-col md:flex-row gap-4 items-center justify-between">
         <div className="flex-1 w-full relative">
           <FiSearch className="absolute left-3.5 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -287,7 +288,10 @@ export default function Tasks() {
                 key={lead._id} 
                 className="card flex flex-col justify-between hover:shadow-lg transition-all border border-slate-100 hover:border-slate-200 bg-white rounded-2xl p-6 shadow-sm group"
               >
-                <div>
+                <div 
+                  onClick={() => navigate(`/crm/leads/${lead._id}`)}
+                  className="cursor-pointer hover:opacity-90 transition-opacity"
+                >
                   {/* Category and Code Header */}
                   <div className="flex justify-between items-center mb-4">
                     <span className="text-xs font-bold font-mono text-slate-400 tracking-wider">

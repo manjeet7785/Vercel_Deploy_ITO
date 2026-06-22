@@ -16,7 +16,7 @@ export const chatApi = {
     return response.data;
   },
 
-  // Admin APIs
+  
   async getAdminSessions() {
     const response = await axiosInstance.get('/chat/admin/sessions');
     return response.data;

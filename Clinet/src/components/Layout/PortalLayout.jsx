@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FiMenu, FiX } from 'react-icons/fi';
 import Sidebar from './Sidebar';
 import Navbar from './Navbar';
@@ -6,26 +6,32 @@ import { useAuth } from '../../hooks/useAuth';
 
 export default function PortalLayout({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { user } = useAuth();
-  const watermarkText = user ? `${user.fullName} (${user.employeeId})` : 'ITO EXIM CONFIDENTIAL';
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkScreenSize = () => {
+      setIsMobile(window.innerWidth < 768);
+      if (window.innerWidth >= 768) {
+        setSidebarOpen(false);
+      }
+    };
+
+    checkScreenSize();
+    window.addEventListener('resize', checkScreenSize);
+
+    return () => window.removeEventListener('resize', checkScreenSize);
+  }, []);
 
   return (
-    <div className="min-h-screen bg-slate-50 relative">
-      {/* Pointer-events-none watermark overlay */}
-      <div className="fixed inset-0 pointer-events-none z-50 opacity-[0.03] overflow-hidden select-none flex flex-wrap gap-x-24 gap-y-24 justify-center items-center content-center rotate-[-15deg] scale-150">
-        {Array.from({ length: 60 }).map((_, i) => (
-          <div key={i} className="text-slate-900 font-bold text-sm tracking-widest whitespace-nowrap">
-            {watermarkText} - CONFIDENTIAL
-          </div>
-        ))}
-      </div>
-
-      <div className="md:hidden bg-white shadow-sm border-b border-slate-200">
+    <div className="min-h-screen bg-[#f8fafc]">
+      
+      <div className="md:hidden bg-[#f8fafc] shadow-sm border-b border-[#cbd5e1] fixed top-0 left-0 right-0 z-[52]">
         <div className="flex items-center justify-between px-4 py-3">
           <button
             type="button"
             onClick={() => setSidebarOpen(true)}
-            className="inline-flex items-center justify-center rounded-md p-2 text-slate-700 hover:bg-slate-100 transition"
+            className="inline-flex items-center justify-center rounded-md p-2 text-[#0f4c75] hover:bg-[#e2e8f0] transition duration-200 focus:outline-none focus:ring-2 focus:ring-[#0f4c75]"
+            aria-label="Open menu"
           >
             <FiMenu size={22} />
           </button>
@@ -35,39 +41,48 @@ export default function PortalLayout({ children }) {
       </div>
 
       <div className="flex min-h-screen">
+        {/* Sidebar */}
         <div
-          className={`fixed inset-y-0 left-0 z-40 w-72 transform bg-gray-900 text-white transition duration-300 ease-in-out md:static md:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}
+          className={`fixed inset-y-0 left-0 z-[60] w-64 sm:w-72 transform bg-gradient-to-b from-[#0f4c75] to-[#0a3a5c] text-white transition-all duration-300 ease-in-out shadow-xl md:static md:translate-x-0 md:shadow-none ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+            }`}
         >
-          <div className="md:hidden border-b border-gray-800 px-6 py-4 flex items-center justify-between">
-            <div>
-              <h2 className="text-lg font-semibold">Portal Menu</h2>
-              <p className="text-sm text-gray-400">Admin / Employee Access</p>
-            </div>
-            <button
-              type="button"
-              onClick={() => setSidebarOpen(false)}
-              className="rounded-md p-2 text-gray-300 hover:bg-gray-800 hover:text-white transition"
-            >
-              <FiX size={20} />
-            </button>
-          </div>
-          <Sidebar onClose={() => setSidebarOpen(false)} />
+          <Sidebar onClose={() => isMobile && setSidebarOpen(false)} />
         </div>
 
+        {/* Backdrop for mobile */}
         {sidebarOpen && (
           <div
-            className="fixed inset-0 z-30 bg-slate-900/50 md:hidden"
+            className="fixed inset-0 z-[55] bg-black/50 backdrop-blur-sm md:hidden animate-fadeIn"
             onClick={() => setSidebarOpen(false)}
+            aria-label="Close menu"
           />
         )}
 
-        <div className="flex-1 flex flex-col md:pl-72">
+        {/* Main Content */}
+        <div className="flex-1 flex flex-col min-h-screen">
+          {/* Spacer for mobile header */}
+          <div className="md:hidden h-[57px]" />
+
           <Navbar />
-          <main className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8">
-            {children}
+          <main className="flex-1 overflow-y-auto p-3 sm:p-4 md:p-6 lg:p-8 pt-4 md:pt-6 lg:pt-8">
+            <div className="max-w-7xl mx-auto">
+              {children}
+            </div>
           </main>
         </div>
       </div>
+
+      {/* Add animation styles */}
+      <style>
+        {`@keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        .animate-fadeIn {
+          animation: fadeIn 0.2s ease-in-out;
+        }
+        `}
+      </style>
     </div>
   );
 }

@@ -1,8 +1,15 @@
-export const errorHandler = (err, req, res, next) => {
-  console.error(`System Exception Logging Target: ${err.stack}`);
-  res.status(err.status || 500).json({
-    success: false,
-    message: err.message || 'Internal Production Runtime Exception',
-    errorCode: err.code || 'SERVER_ERROR'
-  });
-};
+const { fail } = require('../utils/response');
+const logger = require('../utils/logger');
+
+function errorHandler(err, req, res, next) {
+  logger.error(`Unhandled error at ${req.method} ${req.url}:`, err);
+
+  const statusCode = err.status || err.statusCode || 500;
+  const errorCode = err.errorCode || 'SERVER_ERROR';
+  const message = err.message || 'An unexpected error occurred';
+  const details = err.details || [];
+
+  return fail(res, statusCode, errorCode, message, details, req);
+}
+
+module.exports = { errorHandler };

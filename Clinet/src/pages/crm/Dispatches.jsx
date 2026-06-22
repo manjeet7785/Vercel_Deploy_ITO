@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  FiPlus, 
-  FiTruck, 
-  FiCheckCircle, 
-  FiXCircle, 
-  FiEye, 
-  FiUpload, 
-  FiDownload, 
-  FiFileText, 
-  FiShield, 
-  FiCalendar, 
-  FiAlertTriangle 
+import {
+  FiPlus,
+  FiTruck,
+  FiCheckCircle,
+  FiXCircle,
+  FiEye,
+  FiUpload,
+  FiDownload,
+  FiFileText,
+  FiShield,
+  FiCalendar,
+  FiAlertTriangle
 } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import { dispatchesApi } from '../../api/dispatches';
@@ -26,12 +26,12 @@ export default function Dispatches() {
   const [showUploadModal, setShowUploadModal] = useState(false);
 
   const [selectedDispatchId, setSelectedDispatchId] = useState(null);
+
   
-  // Masked/unmasked driver phone numbers mapping
   const [revealedPhones, setRevealedPhones] = useState({});
   const [revealReason, setRevealReason] = useState('');
+
   
-  // Proof upload state
   const [proofFile, setProofFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
 
@@ -49,10 +49,11 @@ export default function Dispatches() {
 
   const statusOptions = ['Pending', 'Truck Assigned', 'Loading', 'In Transit', 'Delivered', 'Issue Raised', 'Closed'];
 
-  const isProcurementAuthorized = 
-    user?.role === 'ADMIN' || 
-    user?.role === 'MANAGER' || 
-    user?.role === 'PROCUREMENT';
+  const isProcurementAuthorized =
+    user?.role === 'ADMIN' ||
+    user?.role === 'MANAGER' ||
+    user?.role === 'PROCUREMENT' ||
+    user?.dispatchPermission === true;
 
   useEffect(() => {
     fetchDispatches();
@@ -159,11 +160,23 @@ export default function Dispatches() {
     try {
       const fd = new FormData();
       fd.append('file', proofFile);
+      fd.append('ownerType', 'DISPATCH');
+      fd.append('ownerId', selectedDispatchId);
+      fd.append('accessLevel', 'RESTRICTED');
 
-      const response = await axiosInstance.post(`/dispatch/${selectedDispatchId}/proof`, fd, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
+      const uploadResponse = await axiosInstance.post('/documents/upload', fd);
+
+      if (!uploadResponse.data.success) {
+        throw new Error(uploadResponse.data.message || 'Document upload failed');
+      }
+
+      const documentId = uploadResponse.data.data?.document?._id || uploadResponse.data?.data?.documentId;
+      if (!documentId) {
+        throw new Error('Uploaded document ID missing');
+      }
+
+      const response = await axiosInstance.post(`/dispatch/${selectedDispatchId}/proof`, {
+        proofDocumentId: documentId
       });
 
       if (response.data.success) {
@@ -173,7 +186,7 @@ export default function Dispatches() {
       }
     } catch (error) {
       console.error('Error uploading proof:', error);
-      toast.error(error.response?.data?.message || 'Upload failed');
+      toast.error(error.response?.data?.message || error.message || 'Upload failed');
     } finally {
       setIsUploading(false);
     }
@@ -209,7 +222,7 @@ export default function Dispatches() {
       'Issue Raised': 'bg-rose-50 text-rose-700 border border-rose-100 font-semibold flex items-center gap-1 justify-center',
       'Closed': 'bg-slate-100 text-slate-500 border border-slate-200 line-through'
     };
-    
+
     if (status === 'Issue Raised') {
       return colors[status];
     }
@@ -226,16 +239,16 @@ export default function Dispatches() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Dispatch & Transport</h1>
           <p className="text-gray-600 mt-1">Track vehicle scheduling, driver details, and loading/delivery documentation.</p>
         </div>
-        
+
         {isProcurementAuthorized && (
-          <button 
-            onClick={() => setShowCreateModal(true)} 
+          <button
+            onClick={() => setShowCreateModal(true)}
             className="btn-primary bg-indigo-600 text-white hover:bg-indigo-700 px-4 py-2.5 rounded-xl flex items-center space-x-2 shadow-lg transition-transform active:scale-95"
           >
             <FiPlus size={18} />
@@ -271,7 +284,7 @@ export default function Dispatches() {
                       <div>
                         <div className="font-semibold text-slate-900 text-sm uppercase">{dispatch.truckNo}</div>
                         <div className="text-xs text-slate-500 mt-0.5">Driver: {dispatch.driverName || 'N/A'}</div>
-                        
+
                         {/* Driver phone decryption block */}
                         {dispatch.driverPhoneMasked ? (
                           <div className="flex items-center gap-1.5 mt-0.5 text-xs text-slate-400">
@@ -340,7 +353,7 @@ export default function Dispatches() {
 
                     {/* Actions dropdown status */}
                     <td className="py-4 px-6 text-center">
-                      <select 
+                      <select
                         value={dispatch.dispatchStatus}
                         onChange={(e) => updateStatus(dispatch._id, e.target.value)}
                         className="text-xs border border-slate-200 rounded-xl px-2.5 py-1.5 bg-white text-slate-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-500"
@@ -366,39 +379,39 @@ export default function Dispatches() {
               <h2 className="text-lg font-bold text-slate-800">New Dispatch Delivery</h2>
               <button onClick={() => setShowCreateModal(false)} className="text-slate-400 hover:text-slate-600">✕</button>
             </div>
-            
+
             <form onSubmit={handleCreateDispatch} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Lead Order ID *</label>
-                <input 
-                  type="text" 
-                  required 
-                  value={formData.leadId} 
-                  onChange={(e) => setFormData({ ...formData, leadId: e.target.value })} 
+                <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Lead Code or ID *</label>
+                <input
+                  type="text"
+                  required
+                  value={formData.leadId}
+                  onChange={(e) => setFormData({ ...formData, leadId: e.target.value })}
                   className="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  placeholder="e.g. 60af7b..."
+                  placeholder="e.g. ITO-LD-101 or 60af7b..."
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Loading Point *</label>
-                  <input 
-                    type="text" 
-                    required 
-                    value={formData.loadingPoint} 
-                    onChange={(e) => setFormData({ ...formData, loadingPoint: e.target.value })} 
+                  <input
+                    type="text"
+                    required
+                    value={formData.loadingPoint}
+                    onChange={(e) => setFormData({ ...formData, loadingPoint: e.target.value })}
                     className="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     placeholder="e.g. Haldia Port"
                   />
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Destination *</label>
-                  <input 
-                    type="text" 
-                    required 
-                    value={formData.destination} 
-                    onChange={(e) => setFormData({ ...formData, destination: e.target.value })} 
+                  <input
+                    type="text"
+                    required
+                    value={formData.destination}
+                    onChange={(e) => setFormData({ ...formData, destination: e.target.value })}
                     className="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     placeholder="City / Site Location"
                   />
@@ -407,11 +420,11 @@ export default function Dispatches() {
 
               <div>
                 <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Truck Reg Number *</label>
-                <input 
-                  type="text" 
-                  required 
-                  value={formData.truckNo} 
-                  onChange={(e) => setFormData({ ...formData, truckNo: e.target.value })} 
+                <input
+                  type="text"
+                  required
+                  value={formData.truckNo}
+                  onChange={(e) => setFormData({ ...formData, truckNo: e.target.value })}
                   className="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   placeholder="e.g. MH-12-PQ-9999"
                 />
@@ -420,20 +433,20 @@ export default function Dispatches() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Driver Name *</label>
-                  <input 
-                    type="text" 
-                    required 
-                    value={formData.driverName} 
-                    onChange={(e) => setFormData({ ...formData, driverName: e.target.value })} 
+                  <input
+                    type="text"
+                    required
+                    value={formData.driverName}
+                    onChange={(e) => setFormData({ ...formData, driverName: e.target.value })}
                     className="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   />
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Driver Phone</label>
-                  <input 
-                    type="tel" 
-                    value={formData.driverPhone} 
-                    onChange={(e) => setFormData({ ...formData, driverPhone: e.target.value })} 
+                  <input
+                    type="tel"
+                    value={formData.driverPhone}
+                    onChange={(e) => setFormData({ ...formData, driverPhone: e.target.value })}
                     className="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   />
                 </div>
@@ -442,22 +455,22 @@ export default function Dispatches() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Material Description *</label>
-                  <input 
-                    type="text" 
-                    required 
-                    value={formData.material} 
-                    onChange={(e) => setFormData({ ...formData, material: e.target.value })} 
+                  <input
+                    type="text"
+                    required
+                    value={formData.material}
+                    onChange={(e) => setFormData({ ...formData, material: e.target.value })}
                     className="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     placeholder="e.g. 20mm Aggregates"
                   />
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Quantity *</label>
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     required
-                    value={formData.quantity} 
-                    onChange={(e) => setFormData({ ...formData, quantity: e.target.value })} 
+                    value={formData.quantity}
+                    onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
                     className="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     placeholder="e.g. 5000 MT"
                   />
@@ -466,10 +479,10 @@ export default function Dispatches() {
 
               <div>
                 <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Loading Date</label>
-                <input 
-                  type="date" 
-                  value={formData.loadingDate} 
-                  onChange={(e) => setFormData({ ...formData, loadingDate: e.target.value })} 
+                <input
+                  type="date"
+                  value={formData.loadingDate}
+                  onChange={(e) => setFormData({ ...formData, loadingDate: e.target.value })}
                   className="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
@@ -495,7 +508,7 @@ export default function Dispatches() {
               <p className="text-sm text-slate-600 mb-5 leading-relaxed">
                 WARNING: Accessing the unmasked driver contact details is monitored. Please enter a business justification to reveal this number.
               </p>
-              
+
               <form onSubmit={handleRevealSubmit}>
                 <div>
                   <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Justification Reason</label>
@@ -508,7 +521,7 @@ export default function Dispatches() {
                     placeholder="e.g. Need to contact transporter/driver about loading point delay..."
                   />
                 </div>
-                
+
                 <div className="flex space-x-3 mt-6">
                   <button
                     type="submit"
@@ -538,20 +551,20 @@ export default function Dispatches() {
               <h2 className="text-lg font-bold text-slate-800">Upload Dispatch Delivery Proof</h2>
               <button onClick={() => setShowUploadModal(false)} className="text-slate-400 hover:text-slate-600">✕</button>
             </div>
-            
+
             <form onSubmit={handleUploadProof} className="space-y-4">
               <div className="p-4 bg-slate-50 rounded-xl border border-slate-200">
                 <label className="block text-xs font-bold text-slate-600 flex items-center gap-1 mb-2">
                   <FiUpload /> Choose proof document (Weighment slip, Delivery Receipt, PDF or Image)
                 </label>
-                <input 
+                <input
                   type="file"
                   required
                   onChange={(e) => setProofFile(e.target.files[0])}
                   className="w-full text-xs cursor-pointer file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
                 />
               </div>
-              
+
               <div className="flex space-x-3 pt-4 border-t">
                 <button type="submit" disabled={isUploading || !proofFile} className="flex-1 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-semibold transition">
                   {isUploading ? 'Uploading...' : 'Confirm Upload'}

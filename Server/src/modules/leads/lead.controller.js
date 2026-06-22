@@ -1,76 +1,99 @@
-import { Lead } from './lead.model.js';
-import { encrypt, decrypt, generateHash } from '../../utils/crypto.js';
-import { AuditLog } from '../security-audit/auditLog.model.js';
+const leadService = require('./lead.service');
+const { ok, fail } = require('../../utils/response');
 
-export const createLead = async (req, res, next) => {
+async function getLeadsList(req, res, next) {
   try {
-    const { source, customerName, companyName, mobile, email, productCategory, quantity, destination, chatSummary } = req.body;
-    const phoneHash = generateHash(mobile);
-    const existing = await Lead.findOne({ phoneHash, productCategory });
+    const leads = await leadService.listLeads(req.user, req.query);
+    return ok(res, { leads }, 'Leads list retrieved successfully', 200, req);
+  } catch (error) {
+    next(error);
+  }
+}
 
-    if (existing) {
-      return res.status(409).json({ success: false, message: 'Duplicate lead identification rule matched structural criteria', errorCode: 'DUPLICATE_LEAD_FOUND' });
+async function getLeadDetails(req, res, next) {
+  try {
+    const result = await leadService.getLeadById(req.params.id, req.user);
+    return ok(res, result, 'Lead details retrieved successfully', 200, req);
+  } catch (error) {
+    if (error.message === 'LEAD_NOT_FOUND') {
+      return fail(res, 404, 'VALIDATION_FAILED', 'Lead not found');
+    }
+    if (error.message === 'OWNERSHIP_FORBIDDEN') {
+      return fail(res, 403, 'OWNERSHIP_FORBIDDEN', 'Access denied: You are not authorized to view this lead');
+    }
+    next(error);
+  }
+}
+
+async function changeLeadStage(req, res, next) {
+  try {
+    const { newStage, remark, nextFollowupAt } = req.body;
+    const ipAddress = req.ip || req.headers['x-forwarded-for'] || '';
+    const deviceHash = req.headers['x-device-hash'] || '';
+
+    if (!newStage) {
+      return fail(res, 400, 'VALIDATION_FAILED', 'newStage is required');
     }
 
-    const count = await Lead.countDocuments();
-    const leadCode = `ITO-${productCategory.substring(0, 3)}-${1000 + count + 1}`;
-
-    const lead = await Lead.create({
-      leadCode,
-      source,
-      customerName,
-      companyName,
-      phoneEncrypted: encrypt(mobile),
-      phoneHash,
-      emailEncrypted: email ? encrypt(email) : null,
-      emailHash: email ? generateHash(email) : null,
-      productCategory,
-      quantity,
-      destination,
-      chatSummary
+    const lead = await leadService.updateStage({
+      leadId: req.params.id,
+      newStage,
+      remark,
+      nextFollowupAt,
+      user: req.user,
+      ipAddress,
+      deviceHash
     });
 
-    await AuditLog.create({ actorId: req.user?.employeeId || 'SYSTEM', actionType: 'LEAD_CREATED', entityType: 'LEAD', entityId: lead._id, severity: 'LOW' });
-    res.status(201).json({ success: true, message: 'Lead added cleanly into corporate perimeter registry', data: lead });
+    return ok(res, { lead }, 'Lead stage updated successfully', 200, req);
   } catch (error) {
-    next(error);
-  }
-};
-
-export const getLeads = async (req, res, next) => {
-  try {
-    const query = {};
-    if (req.user.role === 'SALES') {
-      query.productCategory = req.user.department;
+    if (error.message === 'LEAD_NOT_FOUND') {
+      return fail(res, 404, 'VALIDATION_FAILED', 'Lead not found');
     }
-
-    const rawLeads = await Lead.find(query);
-    const data = rawLeads.map((l) => {
-      const obj = l.toObject();
-      obj.phoneRaw = decrypt(obj.phoneEncrypted);
-      obj.emailRaw = obj.emailEncrypted ? decrypt(obj.emailEncrypted) : '';
-      return obj;
-    });
-
-    res.json({ success: true, data });
-  } catch (error) {
+    if (error.message === 'OWNERSHIP_FORBIDDEN') {
+      return fail(res, 403, 'OWNERSHIP_FORBIDDEN', 'Access denied: You do not have permissions for this lead');
+    }
+    if (error.message.includes('INVALID_STAGE_TRANSITION')) {
+      return fail(res, 400, 'VALIDATION_FAILED', error.message);
+    }
     next(error);
   }
-};
+}
 
-export const updateLeadStage = async (req, res, next) => {
+async function assignLead(req, res, next) {
   try {
-    const { id } = req.params;
-    const { newStage } = req.body;
-    const lead = await Lead.findById(id);
-    if (!lead) return res.status(404).json({ success: false, message: 'Target profile tracking match entity missing' });
-
-    lead.stage = newStage;
-    await lead.save();
-
-    await AuditLog.create({ actorId: req.user.employeeId, actionType: 'LEAD_STAGE_CHANGED', entityType: 'LEAD', entityId: lead._id, metadata: { newStage }, severity: 'LOW' });
-    res.json({ success: true, message: 'Stage updated dynamically', data: lead });
+    const { assignedTo, assignedDepartment } = req.body;
+    const lead = await leadService.assignLead({
+      leadId: req.params.id || req.params.leadId,
+      assignedTo,
+      assignedDepartment,
+      user: req.user
+    });
+    return ok(res, { lead }, 'Lead assignment updated successfully', 200, req);
   } catch (error) {
+    if (error.message === 'LEAD_NOT_FOUND') {
+      return fail(res, 404, 'VALIDATION_FAILED', 'Lead not found');
+    }
     next(error);
   }
+}
+
+async function deleteLead(req, res, next) {
+  try {
+    await leadService.deleteLead(req.params.id || req.params.leadId, req.user);
+    return ok(res, {}, 'Lead deleted successfully', 200, req);
+  } catch (error) {
+    if (error.message === 'LEAD_NOT_FOUND') {
+      return fail(res, 404, 'VALIDATION_FAILED', 'Lead not found');
+    }
+    next(error);
+  }
+}
+
+module.exports = {
+  getLeadsList,
+  getLeadDetails,
+  changeLeadStage,
+  assignLead,
+  deleteLead
 };

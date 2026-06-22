@@ -3,15 +3,21 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'r
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './context/AuthContext';
 import { useAuth } from './hooks/useAuth';
-// Public Pages
+
 import Home from './pages/public/Home';
 import Products from './pages/public/Products';
 import About from './pages/public/About';
 import Contact from './pages/public/Contact';
 import QuoteRequest from './pages/public/QuoteRequest';
 import Login from './pages/public/Login';
+import ClientLogin from './pages/public/ClientLogin';
+import EmployeeLogin from './pages/public/EmployeeLogin';
 import Signup from './pages/public/Signup';
-// CRM Pages
+import ClientSignup from './pages/public/ClientSignup';
+import EmployeeSignup from './pages/public/EmployeeSignup';
+import DevicePending from './pages/public/DevicePending';
+import VerifyEmail from './pages/public/VerifyEmail';
+
 import Dashboard from './pages/crm/Dashboard';
 import Leads from './pages/crm/Leads';
 import LeadDetail from './pages/crm/LeadDetail';
@@ -25,9 +31,10 @@ import Reports from './pages/crm/Reports';
 import AdminPanel from './pages/crm/AdminPanel';
 import ProductUpload from './pages/crm/ProductUpload';
 import Tasks from './pages/crm/Tasks';
-// Components
+import Notifications from './pages/crm/Notifications';
+
 import Navbar from './components/Layout/Navbar';
-import Sidebar from './components/Layout/Sidebar';
+import PortalLayout from './components/Layout/PortalLayout';
 import Footer from './components/Layout/Footer';
 import ChatWidget from './components/Chat/ChatWidget';
 
@@ -67,48 +74,129 @@ function AdminRoute({ children }) {
   return children;
 }
 
+function RoleProtectedRoute({ children, allowedRoles }) {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
+
+  if (!user || !allowedRoles.includes(user.role)) {
+    return <Navigate to="/crm/dashboard" />;
+  }
+
+  return children;
+}
+
 function AppLayout() {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const location = useLocation();
   const isCRM = location.pathname.startsWith('/crm');
-  const isAuth = location.pathname === '/login' || location.pathname === '/signup';
+  const isAuth = [
+    '/login',
+    '/signup',
+    '/client-login',
+    '/employee-login',
+    '/client-signup',
+    '/employee-signup',
+    '/device-pending',
+    '/verify-email'
+  ].includes(location.pathname);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="animate-spin rounded-full h-14 w-14 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
 
   if (isAuth) {
     return (
       <Routes>
-        <Route path="/login" element={<Login />} />
+        <Route path="/login" element={<ClientLogin />} />
+        <Route path="/client-login" element={<Navigate to="/login" replace />} />
+        <Route path="/employee-login" element={<EmployeeLogin />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="/client-signup" element={<ClientSignup />} />
+        <Route path="/employee-signup" element={<EmployeeSignup />} />
+        <Route path="/device-pending" element={<DevicePending />} />
+        <Route path="/verify-email" element={<VerifyEmail />} />
       </Routes>
     );
   }
 
   if (isCRM && user) {
+    const isClient = user.employeeId && user.employeeId.startsWith('CL_');
+    if (isClient) {
+      return <Navigate to="/" replace />;
+    }
     return (
-      <div className="flex h-screen bg-gray-50">
-        <Sidebar />
-        <div className="flex-1 flex flex-col overflow-hidden">
-          <Navbar />
-          <main className="flex-1 overflow-y-auto p-6">
-            <Routes>
-              <Route path="/crm/dashboard" element={<Dashboard />} />
-              <Route path="/crm/leads" element={<Leads />} />
-              <Route path="/crm/leads/:id" element={<LeadDetail />} />
-              <Route path="/crm/quotations" element={<Quotations />} />
-              <Route path="/crm/dispatches" element={<Dispatches />} />
-              <Route path="/crm/payments" element={<Payments />} />
-              <Route path="/crm/documents" element={<Documents />} />
-              <Route path="/crm/products" element={<ProductUpload />} />
-              <Route path="/crm/tasks" element={<Tasks />} />
-              <Route path="/crm/employees" element={<AdminRoute><Employees /></AdminRoute>} />
-              <Route path="/crm/security" element={<AdminRoute><Security /></AdminRoute>} />
-              <Route path="/crm/reports" element={<AdminRoute><Reports /></AdminRoute>} />
-              <Route path="/crm/admin" element={<AdminRoute><AdminPanel /></AdminRoute>} />
-            </Routes>
-          </main>
-        </div>
+      <PortalLayout>
+        <Routes>
+          <Route path="/crm/dashboard" element={<Dashboard />} />
+          <Route path="/crm/notifications" element={<Notifications />} />
+          <Route
+            path="/crm/leads"
+            element={
+              user?.role === 'ADMIN' || user?.leadPermission === true ? (
+                <Leads />
+              ) : (
+                <Navigate to="/crm/dashboard" replace />
+              )
+            }
+          />
+          <Route
+            path="/crm/leads/:id"
+            element={
+              user?.role === 'ADMIN' || user?.leadPermission === true || user?.taskPermission === true ? (
+                <LeadDetail />
+              ) : (
+                <Navigate to="/crm/dashboard" replace />
+              )
+            }
+          />
+          <Route path="/crm/quotations" element={<Quotations />} />
+          <Route path="/crm/dispatches" element={<Dispatches />} />
+          <Route path="/crm/payments" element={<Payments />} />
+          <Route
+            path="/crm/documents"
+            element={
+              user?.role === 'ADMIN' || user?.documentPermission === true ? (
+                <Documents />
+              ) : (
+                <Navigate to="/crm/dashboard" replace />
+              )
+            }
+          />
+          <Route path="/crm/products" element={<ProductUpload />} />
+          <Route
+            path="/crm/tasks"
+            element={
+              user?.role === 'ADMIN' || user?.taskPermission === true ? (
+                <Tasks />
+              ) : (
+                <Navigate to="/crm/dashboard" replace />
+              )
+            }
+          />
+          <Route path="/crm/employees" element={<AdminRoute><Employees /></AdminRoute>} />
+          <Route path="/crm/security" element={<AdminRoute><Security /></AdminRoute>} />
+          <Route path="/crm/reports" element={<AdminRoute><Reports /></AdminRoute>} />
+          <Route path="/crm/admin" element={<AdminRoute><AdminPanel /></AdminRoute>} />
+          <Route path="*" element={<Navigate to="/crm/dashboard" />} />
+        </Routes>
         <ChatWidget />
-      </div>
+      </PortalLayout>
     );
+  }
+
+  if (isCRM && !user) {
+    return <Navigate to="/login" />;
   }
 
   return (

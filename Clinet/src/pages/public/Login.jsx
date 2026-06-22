@@ -55,14 +55,12 @@ const Login = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 via-white to-gray-100 py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-      {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-32 w-80 h-80 bg-blue-100 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse"></div>
         <div className="absolute -bottom-40 -left-32 w-80 h-80 bg-purple-100 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse delay-1000"></div>
       </div>
 
       <div className="max-w-md w-full space-y-8 relative z-10 bg-white/80 backdrop-blur-md p-8 rounded-3xl border border-gray-100 shadow-2xl">
-        {/* Logo and header section */}
         <div className="text-center">
           <div className="flex justify-center mb-4">
             <div className="relative group">
@@ -73,8 +71,6 @@ const Login = () => {
             </div>
           </div>
         </div>
-
-        {/* STEP 1: Login Form */}
 
         <form className="mt-8 space-y-6" onSubmit={handleLoginSubmit}>
           <div className="space-y-4">
@@ -128,8 +124,6 @@ const Login = () => {
             {loading ? 'Signing in...' : 'Sign in'}
           </button>
         </form>
-
-        {/* Sign up link */}
         <div className="text-center">
           <p className="text-sm text-gray-600">
             Don't have an account?{' '}
@@ -143,7 +137,6 @@ const Login = () => {
           </p>
         </div>
 
-        {/* Footer note */}
         <p className="text-center text-xs text-gray-400">
           By signing in, you agree to our{' '}
           <a href="#" className="text-blue-500 hover:text-blue-600">Terms</a> and{' '}

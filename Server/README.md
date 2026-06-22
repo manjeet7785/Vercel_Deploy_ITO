@@ -1,7 +1,3 @@
-# ITO Task Server
-
-Backend scaffold for the assignment requirements shown in the PDF screenshots.
-
 ## Tech Stack
 - Node.js
 - Express
@@ -12,10 +8,7 @@ Backend scaffold for the assignment requirements shown in the PDF screenshots.
 ## Setup
 1. Install dependencies:
 
-```bash
-cd G:\Ev\Task\Server
 npm install
-```
 
 2. Create `.env` from `.env.example`.
 3. Start the server:
@@ -59,5 +52,4 @@ npm run dev
 - `PATCH /api/v1/payments/:id`
 - `GET /api/v1/reports/admin-summary`
 
-## MongoDB
-The provided MongoDB URL is already set as the default fallback in `src/config/db.js` and documented in `.env.example`.
+

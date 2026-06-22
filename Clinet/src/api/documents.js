@@ -7,9 +7,7 @@ export const documentsApi = {
   },
 
   async uploadDocument(formData) {
-    const response = await axiosInstance.post('/documents/upload', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
-    });
+    const response = await axiosInstance.post('/documents/upload', formData);
     return response.data;
   },
 

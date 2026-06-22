@@ -76,11 +76,11 @@ export default function QuoteRequest() {
         </p>
       </div>
 
-      {/* Form Container Card */}
+      
       <div className="bg-white border border-gray-200 shadow-sm rounded-2xl p-6 sm:p-10">
         <form onSubmit={handleSubmit} className="space-y-6">
 
-          {/* Row 1: Name & Company */}
+          
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1.5">Full Name <span className="text-rose-500">*</span></label>

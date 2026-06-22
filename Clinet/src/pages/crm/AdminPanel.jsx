@@ -22,7 +22,6 @@ export default function AdminPanel() {
   const [replyText, setReplyText] = useState('');
   const [devices, setDevices] = useState([]);
 
-  // Task assignment modal states
   const [showAssignModal, setShowAssignModal] = useState(false);
   const [leadsList, setLeadsList] = useState([]);
   const [assignFormData, setAssignFormData] = useState({
@@ -38,7 +37,7 @@ export default function AdminPanel() {
     }
   }, [user]);
 
-  // Poll active chat list and current chat messages every 4 seconds when in 'chats' tab
+
   useEffect(() => {
     let intervalId;
     if (activeTab === 'chats') {
@@ -217,6 +216,18 @@ export default function AdminPanel() {
         response = await adminApi.updateExportPermission(id, !currentValue);
       } else if (type === 'upload') {
         response = await adminApi.updateProductUploadPermission(id, !currentValue);
+      } else if (type === 'lead') {
+        response = await adminApi.updateLeadPermission(id, !currentValue);
+      } else if (type === 'document') {
+        response = await adminApi.updateDocumentPermission(id, !currentValue);
+      } else if (type === 'task') {
+        response = await adminApi.updateTaskPermission(id, !currentValue);
+      } else if (type === 'dispatch') {
+        response = await adminApi.updateDispatchPermission(id, !currentValue);
+      } else if (type === 'payment') {
+        response = await adminApi.updatePaymentPermission(id, !currentValue);
+      } else if (type === 'quotation') {
+        response = await adminApi.updateQuotationPermission(id, !currentValue);
       }
       if (response && response.success) {
         toast.success('Permissions updated successfully!');
@@ -270,7 +281,7 @@ export default function AdminPanel() {
         assignedDepartment: assignFormData.assignedDepartment || null
       });
       if (response.success) {
-        toast.success('Task assigned successfully! 🎉');
+        toast.success('Task assigned successfully!');
         setShowAssignModal(false);
         setAssignFormData({ leadId: '', assignedTo: '', assignedDepartment: '' });
         fetchAdminData();
@@ -293,7 +304,7 @@ export default function AdminPanel() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Admin Panel</h1>
@@ -421,7 +432,7 @@ export default function AdminPanel() {
       {/* Overview Tab */}
       {activeTab === 'overview' && (
         <div className="space-y-6">
-          {/* Pipeline Chart */}
+          {/*================== Pipeline Chart ================================= */}
           <div className="card">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">Lead Pipeline Overview</h2>
             <ResponsiveContainer width="100%" height={300}>
@@ -492,7 +503,7 @@ export default function AdminPanel() {
                   </td>
                   <td className="py-3 px-4">{userItem.department}</td>
                   <td className="py-3 px-4">
-                    <div className="flex flex-col gap-1 text-xs text-gray-600">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-2 gap-y-1 text-xs text-gray-600 min-w-[180px]">
                       <label className="inline-flex items-center gap-1.5 cursor-pointer">
                         <input
                           type="checkbox"
@@ -510,6 +521,60 @@ export default function AdminPanel() {
                           className="rounded text-blue-600 focus:ring-blue-500 border-gray-300 w-3.5 h-3.5 cursor-pointer"
                         />
                         <span>Export DB</span>
+                      </label>
+                      <label className="inline-flex items-center gap-1.5 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={userItem.leadPermission || false}
+                          onChange={() => togglePermission(userItem._id, 'lead', userItem.leadPermission)}
+                          className="rounded text-blue-600 focus:ring-blue-500 border-gray-300 w-3.5 h-3.5 cursor-pointer"
+                        />
+                        <span>Leads</span>
+                      </label>
+                      <label className="inline-flex items-center gap-1.5 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={userItem.documentPermission || false}
+                          onChange={() => togglePermission(userItem._id, 'document', userItem.documentPermission)}
+                          className="rounded text-blue-600 focus:ring-blue-500 border-gray-300 w-3.5 h-3.5 cursor-pointer"
+                        />
+                        <span>Docs</span>
+                      </label>
+                      <label className="inline-flex items-center gap-1.5 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={userItem.taskPermission || false}
+                          onChange={() => togglePermission(userItem._id, 'task', userItem.taskPermission)}
+                          className="rounded text-blue-600 focus:ring-blue-500 border-gray-300 w-3.5 h-3.5 cursor-pointer"
+                        />
+                        <span>Tasks</span>
+                      </label>
+                      <label className="inline-flex items-center gap-1.5 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={userItem.dispatchPermission || false}
+                          onChange={() => togglePermission(userItem._id, 'dispatch', userItem.dispatchPermission)}
+                          className="rounded text-blue-600 focus:ring-blue-500 border-gray-300 w-3.5 h-3.5 cursor-pointer"
+                        />
+                        <span>Dispatch</span>
+                      </label>
+                      <label className="inline-flex items-center gap-1.5 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={userItem.paymentPermission || false}
+                          onChange={() => togglePermission(userItem._id, 'payment', userItem.paymentPermission)}
+                          className="rounded text-blue-600 focus:ring-blue-500 border-gray-300 w-3.5 h-3.5 cursor-pointer"
+                        />
+                        <span>Payment</span>
+                      </label>
+                      <label className="inline-flex items-center gap-1.5 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={userItem.quotationPermission || false}
+                          onChange={() => togglePermission(userItem._id, 'quotation', userItem.quotationPermission)}
+                          className="rounded text-blue-600 focus:ring-blue-500 border-gray-300 w-3.5 h-3.5 cursor-pointer"
+                        />
+                        <span>Quotation</span>
                       </label>
                     </div>
                   </td>

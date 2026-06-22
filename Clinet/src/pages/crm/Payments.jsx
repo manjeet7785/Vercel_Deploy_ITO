@@ -1,24 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  FiPlus, 
-  FiDollarSign, 
-  FiCheckCircle, 
-  FiAlertCircle, 
-  FiSend, 
-  FiUpload, 
-  FiLock, 
-  FiCalendar, 
-  FiRefreshCw, 
-  FiFileText 
+import {
+  FiPlus,
+  FiDollarSign,
+  FiCheckCircle,
+  FiAlertCircle,
+  FiSend,
+  FiUpload,
+  FiLock,
+  FiCalendar,
+  FiRefreshCw,
+  FiFileText
 } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import { paymentsApi } from '../../api/payments';
+import { leadsApi } from '../../api/leads';
 import { useAuth } from '../../hooks/useAuth';
 import axiosInstance from '../../api/axiosInstance';
 
 export default function Payments() {
   const { user } = useAuth();
   const [payments, setPayments] = useState([]);
+  const [leads, setLeads] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
@@ -46,14 +48,27 @@ export default function Payments() {
 
   const statusOptions = ['Not Started', 'Advance Received', 'Partial', 'Due', 'Overdue', 'Paid', 'Disputed'];
 
-  const isFinanceAuthorized = 
-    user?.role === 'ADMIN' || 
-    user?.role === 'MANAGER' || 
-    user?.role === 'ACCOUNTS';
+  const isFinanceAuthorized =
+    user?.role === 'ADMIN' ||
+    user?.role === 'MANAGER' ||
+    user?.role === 'ACCOUNTS' ||
+    user?.paymentPermission === true;
 
   useEffect(() => {
     fetchPayments();
+    fetchLeads();
   }, [showOutstandingOnly]);
+
+  const fetchLeads = async () => {
+    try {
+      const response = await leadsApi.getLeads();
+      if (response.success) {
+        setLeads(response.data.leads || []);
+      }
+    } catch (error) {
+      console.error('Error fetching leads:', error);
+    }
+  };
 
   const fetchPayments = async () => {
     try {
@@ -75,7 +90,14 @@ export default function Payments() {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      const response = await paymentsApi.createPayment(formData);
+      const payload = {
+        ...formData,
+        leadId: formData.leadId?.trim(),
+        totalAmount: Number(formData.totalAmount),
+        advanceAmount: Number(formData.advanceAmount || 0)
+      };
+
+      const response = await paymentsApi.createPayment(payload);
       if (response.success) {
         toast.success('Payment record created successfully 🎉');
         setShowCreateModal(false);
@@ -112,7 +134,7 @@ export default function Payments() {
       if (updateData.dueDate) fd.append('dueDate', updateData.dueDate);
       if (updateData.totalAmount !== '') fd.append('totalAmount', updateData.totalAmount);
       if (updateData.advanceAmount !== '') fd.append('advanceAmount', updateData.advanceAmount);
-      
+
       if (updateData.invoiceFile) {
         fd.append('invoice', updateData.invoiceFile);
       }
@@ -120,7 +142,7 @@ export default function Payments() {
         fd.append('paymentProof', updateData.proofFile);
       }
 
-      // Hit API using direct multipart request
+      
       const response = await axiosInstance.patch(`/payments/${selectedPayment._id}`, fd, {
         headers: {
           'Content-Type': 'multipart/form-data'
@@ -142,7 +164,7 @@ export default function Payments() {
 
   const handleSendReminder = async (id) => {
     try {
-      // Direct post to trigger reminder
+      
       const response = await axiosInstance.post(`/payments/${id}/reminder`);
       if (response.data.success) {
         toast.success(`Payment reminder triggered successfully! Total sent: ${response.data.data.payment.reminderCount} ✉️`);
@@ -197,7 +219,7 @@ export default function Payments() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      
       <div className="flex justify-between items-center flex-wrap gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 font-sans">Payment Ledger</h1>
@@ -205,18 +227,18 @@ export default function Payments() {
         </div>
         <div className="flex items-center space-x-3">
           <label className="flex items-center space-x-2 bg-white px-4 py-2.5 rounded-xl border border-slate-200 cursor-pointer shadow-sm select-none hover:bg-slate-50 transition">
-            <input 
-              type="checkbox" 
+            <input
+              type="checkbox"
               checked={showOutstandingOnly}
               onChange={(e) => setShowOutstandingOnly(e.target.checked)}
               className="rounded text-indigo-600 focus:ring-indigo-500 border-slate-300 w-4 h-4 cursor-pointer"
             />
             <span className="text-sm font-semibold text-slate-700">Outstanding Only</span>
           </label>
-          
+
           {isFinanceAuthorized && (
-            <button 
-              onClick={() => setShowCreateModal(true)} 
+            <button
+              onClick={() => setShowCreateModal(true)}
               className="btn-primary bg-indigo-600 text-white hover:bg-indigo-700 px-4 py-2.5 rounded-xl flex items-center space-x-2 shadow-lg transition-transform active:scale-95"
             >
               <FiPlus size={18} />
@@ -226,13 +248,13 @@ export default function Payments() {
         </div>
       </div>
 
-      {/* Analytics Summary */}
+      
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="card bg-white shadow-sm border border-slate-100 rounded-2xl p-5 flex items-center justify-between">
           <div>
             <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Received (Advance)</p>
             <p className="text-2xl font-extrabold text-slate-800 mt-1">
-              {isFinanceAuthorized 
+              {isFinanceAuthorized
                 ? `₹${payments.reduce((sum, p) => sum + (p.advanceAmount || 0), 0).toLocaleString()}`
                 : '₹ - - - -'}
             </p>
@@ -242,12 +264,12 @@ export default function Payments() {
             <FiDollarSign size={24} />
           </div>
         </div>
-        
+
         <div className="card bg-white shadow-sm border border-slate-100 rounded-2xl p-5 flex items-center justify-between">
           <div>
             <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Pending Balance</p>
             <p className="text-2xl font-extrabold text-slate-800 mt-1">
-              {isFinanceAuthorized 
+              {isFinanceAuthorized
                 ? `₹${payments.reduce((sum, p) => sum + (p.balanceAmount || 0), 0).toLocaleString()}`
                 : '₹ - - - -'}
             </p>
@@ -342,7 +364,7 @@ export default function Payments() {
                     <td className="py-4 px-6">
                       <div className="flex flex-col gap-1.5 text-xs">
                         {payment.invoiceDocumentId ? (
-                          <button 
+                          <button
                             onClick={() => handleDownloadDoc(payment.invoiceDocumentId, `Invoice_${payment.leadId?.leadCode || 'payment'}.pdf`)}
                             className="inline-flex items-center gap-1 text-indigo-600 hover:text-indigo-800 hover:underline font-semibold"
                           >
@@ -352,7 +374,7 @@ export default function Payments() {
                           <span className="text-slate-400 italic">No invoice</span>
                         )}
                         {payment.paymentProofDocumentId ? (
-                          <button 
+                          <button
                             onClick={() => handleDownloadDoc(payment.paymentProofDocumentId, `Receipt_${payment.leadId?.leadCode || 'payment'}.pdf`)}
                             className="inline-flex items-center gap-1 text-emerald-600 hover:text-emerald-800 hover:underline font-semibold"
                           >
@@ -386,7 +408,7 @@ export default function Payments() {
                         >
                           Update
                         </button>
-                        
+
                         <button
                           onClick={() => handleSendReminder(payment._id)}
                           className="bg-slate-50 text-slate-600 hover:bg-slate-100 hover:text-indigo-600 p-2 rounded-xl transition"
@@ -414,33 +436,38 @@ export default function Payments() {
             </div>
             <form onSubmit={handleCreatePayment} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Lead Customer ID *</label>
-                <input 
-                  type="text" 
-                  required 
-                  value={formData.leadId} 
-                  onChange={(e) => setFormData({ ...formData, leadId: e.target.value })} 
-                  className="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  placeholder="e.g. 60af8e..."
-                />
+                <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Select Lead / Customer *</label>
+                <select
+                  required
+                  value={formData.leadId}
+                  onChange={(e) => setFormData({ ...formData, leadId: e.target.value })}
+                  className="w-full px-3 py-2 border border-slate-200 rounded-xl bg-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer"
+                >
+                  <option value="">-- Select Lead --</option>
+                  {leads.map(lead => (
+                    <option key={lead._id} value={lead._id}>
+                      {lead.customerName} ({lead.leadCode})
+                    </option>
+                  ))}
+                </select>
               </div>
               <div>
                 <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Total Amount (₹) *</label>
-                <input 
-                  type="number" 
-                  required 
-                  value={formData.totalAmount} 
-                  onChange={(e) => setFormData({ ...formData, totalAmount: e.target.value })} 
+                <input
+                  type="number"
+                  required
+                  value={formData.totalAmount}
+                  onChange={(e) => setFormData({ ...formData, totalAmount: e.target.value })}
                   className="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   placeholder="e.g. 150000"
                 />
               </div>
               <div>
                 <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Advance Deposited (₹)</label>
-                <input 
-                  type="number" 
-                  value={formData.advanceAmount} 
-                  onChange={(e) => setFormData({ ...formData, advanceAmount: e.target.value })} 
+                <input
+                  type="number"
+                  value={formData.advanceAmount}
+                  onChange={(e) => setFormData({ ...formData, advanceAmount: e.target.value })}
                   className="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   placeholder="e.g. 50000"
                 />
@@ -459,10 +486,10 @@ export default function Payments() {
               </div>
               <div>
                 <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Due Date</label>
-                <input 
-                  type="date" 
-                  value={formData.dueDate} 
-                  onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })} 
+                <input
+                  type="date"
+                  value={formData.dueDate}
+                  onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })}
                   className="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
@@ -485,10 +512,10 @@ export default function Payments() {
               <h2 className="text-lg font-bold text-slate-800">Update Ledger & Vault Docs</h2>
               <button onClick={() => setShowUpdateModal(false)} className="text-slate-400 hover:text-slate-600">✕</button>
             </div>
-            
+
             <form onSubmit={handleUpdatePayment} className="space-y-4">
               <p className="text-xs text-slate-500 bg-slate-50 p-2.5 rounded-lg border">
-                Lead: <strong>{selectedPayment.leadId?.customerName || 'N/A'}</strong><br/>
+                Lead: <strong>{selectedPayment.leadId?.customerName || 'N/A'}</strong><br />
                 Code: <strong>{selectedPayment.leadId?.leadCode || 'N/A'}</strong>
               </p>
 
@@ -496,19 +523,19 @@ export default function Payments() {
                 <>
                   <div>
                     <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Total Amount (₹)</label>
-                    <input 
-                      type="number" 
-                      value={updateData.totalAmount} 
-                      onChange={(e) => setUpdateData({ ...updateData, totalAmount: e.target.value })} 
+                    <input
+                      type="number"
+                      value={updateData.totalAmount}
+                      onChange={(e) => setUpdateData({ ...updateData, totalAmount: e.target.value })}
                       className="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none"
                     />
                   </div>
                   <div>
                     <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Advance Paid (₹)</label>
-                    <input 
-                      type="number" 
-                      value={updateData.advanceAmount} 
-                      onChange={(e) => setUpdateData({ ...updateData, advanceAmount: e.target.value })} 
+                    <input
+                      type="number"
+                      value={updateData.advanceAmount}
+                      onChange={(e) => setUpdateData({ ...updateData, advanceAmount: e.target.value })}
                       className="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none"
                     />
                   </div>
@@ -530,10 +557,10 @@ export default function Payments() {
 
               <div>
                 <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Due Date</label>
-                <input 
-                  type="date" 
-                  value={updateData.dueDate} 
-                  onChange={(e) => setUpdateData({ ...updateData, dueDate: e.target.value })} 
+                <input
+                  type="date"
+                  value={updateData.dueDate}
+                  onChange={(e) => setUpdateData({ ...updateData, dueDate: e.target.value })}
                   className="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm"
                 />
               </div>
@@ -543,7 +570,7 @@ export default function Payments() {
                 <label className="block text-xs font-bold text-slate-600 flex items-center gap-1">
                   <FiUpload /> Upload Invoice (PDF)
                 </label>
-                <input 
+                <input
                   type="file"
                   accept=".pdf"
                   onChange={(e) => setUpdateData({ ...updateData, invoiceFile: e.target.files[0] })}

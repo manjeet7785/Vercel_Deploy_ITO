@@ -33,6 +33,15 @@ export const authApi = {
     return response.data;
   },
 
+  async verifyEmail(email, otp) {
+    const response = await axiosInstance.post('/auth/verify-email', { email, otp });
+    if (response.data.success && response.data.data?.token) {
+      localStorage.setItem('token', response.data.data.token);
+      localStorage.setItem('user', JSON.stringify(response.data.data.user));
+    }
+    return response.data;
+  },
+
   async requestOtp(emailData) {
     const response = await axiosInstance.post('/auth/request-otp', emailData);
     return response.data;

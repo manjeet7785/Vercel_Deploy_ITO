@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { quotationsApi } from '../../api/quotations';
 import { FiCheck, FiX, FiEye } from 'react-icons/fi';
 import toast from 'react-hot-toast';
+import { useAuth } from '../../hooks/useAuth';
 
 export default function Quotations() {
+  const { user } = useAuth();
   const [quotations, setQuotations] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -91,14 +93,18 @@ export default function Quotations() {
                   </td>
                   <td className="py-3 px-4">{new Date(quotation.createdAt).toLocaleDateString()}</td>
                   <td className="py-3 px-4">
-                    <div className="flex space-x-2">
-                      <button onClick={() => handleApprove(quotation._id, quotation.employeeRequestedPrice)} className="text-green-600 hover:text-green-700">
-                        <FiCheck size={18} />
-                      </button>
-                      <button onClick={() => handleReject(quotation._id)} className="text-red-600 hover:text-red-700">
-                        <FiX size={18} />
-                      </button>
-                    </div>
+                    {user?.role === 'ADMIN' || user?.quotationPermission === true ? (
+                      <div className="flex space-x-2">
+                        <button onClick={() => handleApprove(quotation._id, quotation.employeeRequestedPrice)} className="text-green-600 hover:text-green-700" title="Approve">
+                          <FiCheck size={18} />
+                        </button>
+                        <button onClick={() => handleReject(quotation._id)} className="text-red-600 hover:text-red-700" title="Reject">
+                          <FiX size={18} />
+                        </button>
+                      </div>
+                    ) : (
+                      <span className="text-xs text-gray-400 italic">Restricted</span>
+                    )}
                   </td>
                 </tr>
               ))

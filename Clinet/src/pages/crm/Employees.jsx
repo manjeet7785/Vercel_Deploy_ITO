@@ -162,7 +162,7 @@ export default function Employees() {
     }
   };
 
-  // Match performance data to employees
+  
   const getPerfStats = (fullName) => {
     const stats = performance.find(p => p._id === fullName);
     if (!stats) return { leads: 0, won: 0, lost: 0, rate: 0 };
@@ -191,7 +191,7 @@ export default function Employees() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Employees & Performance</h1>

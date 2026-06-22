@@ -1,11 +1,37 @@
-import { Router } from 'express';
-import { loginUser } from './auth.controller.js';
+const router = require('express').Router();
+const {
+  register,
+  login,
+  requestOtp,
+  verifyOtp,
+  refresh,
+  logout,
+  me,
+  getSessions,
+  requestDeviceApproval,
+  getMe,
+  refreshToken,
+  logoutAll,
+  verifyEmail
+} = require('./auth.controller');
+const { authenticate } = require('../../middlewares/auth.middleware');
 
-const router = Router();
-router.post('/login', loginUser);
 
-export default router;
+router.post('/register', register);
+router.post('/login', login);
+router.post('/request-otp', requestOtp);
+router.post('/verify-otp', verifyOtp);
+router.post('/refresh', refresh);
+router.get('/refresh-token', refreshToken);
+router.post('/verify-email', verifyEmail);
 
 
+router.get('/me', authenticate, me);
+router.get('/get-me', authenticate, getMe);
+router.post('/logout', authenticate, logout);
+router.get('/logout', authenticate, logout);
+router.get('/logout-all', authenticate, logoutAll);
+router.get('/sessions', authenticate, getSessions);
+router.post('/device/request-approval', authenticate, requestDeviceApproval);
 
-
+module.exports = router;

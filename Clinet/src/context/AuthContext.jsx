@@ -54,13 +54,21 @@ export const AuthProvider = ({ children }) => {
     return response;
   };
 
+  const verifyEmail = async (email, otp) => {
+    const response = await authApi.verifyEmail(email, otp);
+    if (response.success) {
+      setUser(response.data.user);
+    }
+    return response;
+  };
+
   const logout = () => {
     authApi.logout();
     setUser(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, verifyOtp, register, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, verifyOtp, register, verifyEmail, logout }}>
       {children}
     </AuthContext.Provider>
   );

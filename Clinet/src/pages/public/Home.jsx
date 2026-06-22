@@ -14,6 +14,7 @@ import {
   FiCheckCircle
 } from 'react-icons/fi';
 
+
 export default function Landing() {
   const [activeStep, setActiveStep] = useState(0);
 
@@ -52,28 +53,28 @@ export default function Landing() {
 
   const products = [
     {
-      name: 'Natural Stones',
-      image: 'https://images.unsplash.com/photo-1549887534-1541e9326642?w=600',
+      name: 'RM Natural Unpolished Decorative Pebbles for Home & Garden Decor',
+      image: 'https://m.media-amazon.com/images/I/61FSFnx6r-L._SL1024_.jpg',
       category: 'Minerals & Construction',
-      description: 'Premium Indian Granite, Marble, Slate, and Sandstone cut to international grade specifications.'
+      description: 'RM Natural Unpolished Decorative Pebbles for Home & Garden Decor (5kg, Rainbow, 20-50mm) | Raw Natural Stones for Landscaping, Plant Pots, Fillers, Aquarium, Pathways, Indoor Outdoor Use'
     },
     {
-      name: 'Industrial Coal',
-      image: 'https://images.unsplash.com/photo-1581094288338-1a3eb6e1c5a4?w=600',
-      category: 'Energy Commodities',
-      description: 'High-grade bituminous and sub-bituminous thermal coal for industrial and power operations.'
+      name: 'Solid Natural Stone ',
+      image: 'https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcSwiWjzogncwMWMQlEe7c4SMhst0Rle2wP7KS9PYFWU0FmAqF4zXlPU0XT9fKdA1v4MDDMoqhkqnthlc5Qwnada7xkk1BMW',
+      category: 'Construction',
+      description: 'Solid Natural Stone- 60 mm Size, Heat-Resistant and Durable for Building Applications'
     },
     {
-      name: 'Premium Tea',
-      image: 'https://images.unsplash.com/photo-1544787219-7f47ccb77374?w=600',
-      category: 'Agro-Products',
-      description: 'Selected CTC and Orthodox tea leaves sourced directly from India\'s top tea-growing estates.'
+      name: 'Reflectix Expansion Joint',
+      image: 'https://m.media-amazon.com/images/I/41AWyJc1pWL._AC_UF1000,1000_QL80_.jpg',
+      category: 'Construction',
+      description: 'Reflectix Expansion Joint.'
     },
     {
-      name: 'Basmati Rice',
-      image: 'https://images.unsplash.com/photo-1586201375761-83865001b0e5?w=600',
-      category: 'Food Supplies',
-      description: 'Long-grain, aromatic aged Basmati and non-basmati varieties processed in state-of-the-art mills.'
+      name: 'Gfrp Fiberglass Bar, Epoxy Composite Fiberglass Rebar',
+      image: "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcTz7SO8-Tud-Feg53A0TptPFRY6zRCkI7Z5Abg_KC4fCccB7MSJWB9rDk7yZr-to8vgPoVt42xMlRJP6YY4JTVhuM0WUBDM",
+      category: 'Fiberglass Rebar',
+      description: 'Gfrp Fiberglass Bar, Epoxy Composite Fiberglass Rebar'
     }
   ];
 
@@ -98,9 +99,9 @@ export default function Landing() {
 
   return (
     <div className="bg-slate-50 min-h-screen text-slate-800 font-sans">
-      {/* Premium Hero Section */}
+      
       <section className="relative bg-slate-950 text-white overflow-hidden py-32 md:py-40">
-        {/* Background Decorative Mesh & Gradients */}
+        
         <div className="absolute inset-0 opacity-15">
           <div className="absolute -top-40 -right-40 w-96 h-96 rounded-full bg-blue-500 blur-3xl"></div>
           <div className="absolute -bottom-40 -left-40 w-96 h-96 rounded-full bg-indigo-500 blur-3xl"></div>
@@ -136,7 +137,7 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Floating Trust stats */}
+      
       <section className="-mt-8 relative z-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="bg-white rounded-2xl shadow-xl border border-slate-200/80 p-8 grid grid-cols-2 md:grid-cols-4 gap-8 divide-y md:divide-y-0 md:divide-x divide-slate-100">
@@ -160,7 +161,7 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Product categories */}
+      
       <section className="py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">Core Import-Export Commodities</h2>
@@ -195,7 +196,7 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Client workflow timeline */}
+      
       <section className="py-24 bg-slate-900 text-white relative overflow-hidden">
         <div className="absolute inset-0 opacity-5">
           <div className="absolute top-0 right-0 w-full h-full bg-[radial-gradient(circle_800px_at_100%_200px,#3b82f6,transparent)]"></div>
@@ -214,8 +215,8 @@ export default function Landing() {
                   key={index}
                   onClick={() => setActiveStep(index)}
                   className={`w-full text-left p-6 rounded-xl border transition duration-200 flex items-start space-x-4 ${activeStep === index
-                      ? 'bg-blue-600/20 border-blue-500 text-white shadow-md'
-                      : 'bg-slate-950/40 border-slate-800 text-slate-400 hover:bg-slate-800/50 hover:text-slate-200'
+                    ? 'bg-blue-600/20 border-blue-500 text-white shadow-md'
+                    : 'bg-slate-950/40 border-slate-800 text-slate-400 hover:bg-slate-800/50 hover:text-slate-200'
                     }`}
                 >
                   <span className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold ${activeStep === index ? 'bg-blue-500 text-white' : 'bg-slate-800 text-slate-400'

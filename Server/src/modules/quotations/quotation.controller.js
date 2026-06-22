@@ -1,42 +1,101 @@
+const quotationService = require('./quotation.service');
+const { ok, fail } = require('../../utils/response');
+const Quotation = require('./quotation.model');
+const Lead = require('../leads/lead.model');
 
-import { Quotation } from './quotation.model.js';
-import { AuditLog } from '../security-audit/auditLog.model.js';
-
-export const requestQuotation = async (req, res, next) => {
+async function requestQuotation(req, res, next) {
   try {
-    const quotation = await Quotation.create({ ...req.body, requestedBy: req.user.employeeId });
-    await AuditLog.create({ actorId: req.user.employeeId, actionType: 'QUOTATION_REQUEST', entityType: 'QUOTATION', entityId: quotation._id, severity: 'LOW' });
-    res.status(201).json({ success: true, message: 'Quotation entry buffered into administration review state model', data: quotation });
+    const { leadId, employeeRequestedPrice, marginNote, paymentTerms } = req.body;
+    if (!leadId || !employeeRequestedPrice) {
+      return fail(res, 400, 'VALIDATION_FAILED', 'leadId and employeeRequestedPrice are required');
+    }
+
+    const quotation = await quotationService.createQuotationRequest({
+      ...req.body,
+      actorId: req.user._id
+    });
+
+    return ok(res, { quotation }, 'Quotation request created successfully', 201, req);
   } catch (error) {
     next(error);
   }
-};
+}
 
-export const getPendingQuotations = async (req, res, next) => {
+async function pendingQuotations(req, res, next) {
   try {
-    const data = await Quotation.find({ status: 'PENDING_APPROVAL' }).populate('leadId');
-    res.json({ success: true, data });
+    let filter = { status: 'PENDING' };
+    if (req.user.role !== 'ADMIN' && req.user.role !== 'MANAGER') {
+      const myLeads = await Lead.find({ assignedTo: req.user._id }).select('_id');
+      const leadIds = myLeads.map(l => l._id);
+      filter.leadId = { $in: leadIds };
+    }
+    const quotations = await Quotation.find(filter).populate('leadId').sort({ createdAt: -1 });
+    return ok(res, { quotations }, 'Pending quotations retrieved successfully', 200, req);
   } catch (error) {
     next(error);
   }
-};
+}
 
-export const approveQuotation = async (req, res, next) => {
+async function approveQuotation(req, res, next) {
   try {
-    const { id } = req.params;
-    const { approvedPrice, marginNote } = req.body;
-    const quotation = await Quotation.findById(id);
-    if (!quotation) return res.status(404).json({ success: false, message: 'Target specification mapping index null' });
+    const { approvedPrice } = req.body;
+    const quotation = await quotationService.approveQuotation({
+      id: req.params.id,
+      approvedPrice,
+      actorId: req.user._id
+    });
+    return ok(res, { quotation }, 'Quotation approved successfully', 200, req);
+  } catch (error) {
+    if (error.message === 'QUOTATION_NOT_FOUND') {
+      return fail(res, 404, 'VALIDATION_FAILED', 'Quotation not found');
+    }
+    next(error);
+  }
+}
 
-    quotation.approvedPrice = approvedPrice;
-    quotation.marginNote = marginNote;
-    quotation.status = 'APPROVED';
-    quotation.approvedBy = req.user.employeeId;
-    await quotation.save();
+async function rejectQuotation(req, res, next) {
+  try {
+    const { marginNote } = req.body;
+    const quotation = await quotationService.rejectQuotation({
+      id: req.params.id,
+      marginNote,
+      actorId: req.user._id
+    });
+    return ok(res, { quotation }, 'Quotation rejected successfully', 200, req);
+  } catch (error) {
+    if (error.message === 'QUOTATION_NOT_FOUND') {
+      return fail(res, 404, 'VALIDATION_FAILED', 'Quotation not found');
+    }
+    next(error);
+  }
+}
 
-    await AuditLog.create({ actorId: req.user.employeeId, actionType: 'QUOTATION_APPROVED', entityType: 'QUOTATION', entityId: quotation._id, severity: 'MEDIUM' });
-    res.json({ success: true, message: 'Corporate quote authorized safely into active operation matrix', data: quotation });
+async function markSentToCustomer(req, res, next) {
+  try {
+    const quotation = await quotationService.sendToCustomer(req.params.id, req.user._id);
+    return ok(res, { quotation }, 'Quotation status updated: Sent to Customer', 200, req);
+  } catch (error) {
+    if (error.message === 'QUOTATION_NOT_FOUND') {
+      return fail(res, 404, 'VALIDATION_FAILED', 'Quotation not found');
+    }
+    next(error);
+  }
+}
+
+async function getSummaryReport(req, res, next) {
+  try {
+    const summary = await quotationService.getQuotationSummary();
+    return ok(res, summary, 'Quotation summary report retrieved', 200, req);
   } catch (error) {
     next(error);
   }
+}
+
+module.exports = {
+  requestQuotation,
+  pendingQuotations,
+  approveQuotation,
+  rejectQuotation,
+  markSentToCustomer,
+  getSummaryReport
 };

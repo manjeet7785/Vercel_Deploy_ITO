@@ -23,22 +23,53 @@ export default function Products() {
   }, []);
 
   const staticProducts = [
-    { id: 1, name: 'Indian Granite', category: 'stone', origin: 'India', price: '$50-200/ton', image: 'https://images.unsplash.com/photo-1549887534-1541e9326642?w=400', description: 'Premium quality granite for construction' },
-    { id: 2, name: 'Italian Marble', category: 'stone', origin: 'Italy', price: '$100-500/ton', image: 'https://images.unsplash.com/photo-1569691105751-88df003de7a4?w=400', description: 'Luxury marble for flooring and decor' },
-    { id: 3, name: 'Indonesian Coal', category: 'coal', origin: 'Indonesia', price: '$80-120/ton', image: 'https://images.unsplash.com/photo-1581094288338-1a3eb6e1c5a4?w=400', description: 'High-calorie thermal coal' },
-    { id: 4, name: 'Australian Coal', category: 'coal', origin: 'Australia', price: '$90-140/ton', image: 'https://images.unsplash.com/photo-1581094288338-1a3eb6e1c5a4?w=400', description: 'Premium metallurgical coal' },
-    { id: 5, name: 'Darjeeling Tea', category: 'tea', origin: 'India', price: '$20-50/kg', image: 'https://images.unsplash.com/photo-1544787219-7f47ccb77374?w=400', description: 'Premium first-flush tea' },
-    { id: 6, name: 'Assam Tea', category: 'tea', origin: 'India', price: '$15-30/kg', image: 'https://images.unsplash.com/photo-1564890369478-c89ca6d9cde9?w=400', description: 'Strong and malty black tea' },
-    { id: 7, name: 'Basmati Rice', category: 'rice', origin: 'India', price: '$800-1200/ton', image: 'https://images.unsplash.com/photo-1586201375761-83865001b0e5?w=400', description: 'Premium long-grain aromatic rice' },
-    { id: 8, name: 'Jasmine Rice', category: 'rice', origin: 'Thailand', price: '$700-1000/ton', image: 'https://images.unsplash.com/photo-1586201375761-83865001b0e5?w=400', description: 'Fragrant Thai rice variety' }
+    {
+      id: 1,
+      origin: 'India',
+      price: '20-50/kg',
+      name: 'RM Natural Unpolished Decorative Pebbles for Home & Garden Decor',
+      image: 'https://m.media-amazon.com/images/I/61FSFnx6r-L._SL1024_.jpg',
+      category: 'Minerals & Construction',
+      description: 'RM Natural Unpolished Decorative Pebbles for Home & Garden Decor (5kg, Rainbow, 20-50mm) | Raw Natural Stones for Landscaping, Plant Pots, Fillers, Aquarium, Pathways, Indoor Outdoor Use'
+    },
+    {
+      id: 2,
+      origin: 'India',
+      price: '20-50/kg',
+      name: 'Solid Natural Stone ',
+      image: 'https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcSwiWjzogncwMWMQlEe7c4SMhst0Rle2wP7KS9PYFWU0FmAqF4zXlPU0XT9fKdA1v4MDDMoqhkqnthlc5Qwnada7xkk1BMW',
+      category: 'Construction',
+      description: 'Solid Natural Stone- 60 mm Size, Heat-Resistant and Durable for Building Applications'
+    },
+    {
+      id: 3,
+      origin: 'India',
+      price: '20-50/kg',
+      name: 'Reflectix Expansion Joint',
+      image: 'https://m.media-amazon.com/images/I/41AWyJc1pWL._AC_UF1000,1000_QL80_.jpg',
+      category: 'Construction',
+      description: 'Reflectix Expansion Joint.'
+    },
+    {
+      id: 4,
+      origin: "India",
+      price: '20-50/kg',
+      name: 'Gfrp Fiberglass Bar, Epoxy Composite Fiberglass Rebar',
+      image: "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcTz7SO8-Tud-Feg53A0TptPFRY6zRCkI7Z5Abg_KC4fCccB7MSJWB9rDk7yZr-to8vgPoVt42xMlRJP6YY4JTVhuM0WUBDM",
+      category: 'Fiberglass Rebar',
+      description: 'Gfrp Fiberglass Bar, Epoxy Composite Fiberglass Rebar'
+    }
   ];
 
   const categories = [
     { value: 'all', label: 'All Products' },
     { value: 'stone', label: 'Natural Stones' },
+    { value: 'Minerals & Construction', label: 'Minerals & Construction' },
+    { value: 'Construction', label: 'Construction' },
+    { value: 'Fiberglass Rebar', label: 'Fiberglass Rebar' },
     { value: 'coal', label: 'Coal' },
     { value: 'tea', label: 'Tea' },
-    { value: 'rice', label: 'Rice' }
+    { value: 'rice', label: 'Rice' },
   ];
 
   const products = [...dbProducts, ...staticProducts];
@@ -89,9 +120,9 @@ export default function Products() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {filteredProducts.map(product => (
           <div key={product._id || product.id} className="card hover:shadow-lg transition">
-            <img src={product.image} alt={product.name} className="w-full h-64 object-cover rounded-lg mb-4" />
-            <h3 className="text-xl font-semibold mb-2">{product.name}</h3>
-            <p className="text-gray-600 mb-2">{product.description}</p>
+            <img src={product.image || product.imageUrl} alt={product.name} className="w-full h-64 object-cover rounded-lg mb-4" />
+            <h3 className="text-xl font-semibold mb-2 break-all">{product.name}</h3>
+            <p className="text-gray-600 mb-2 break-all">{product.description}</p>
             <div className="flex justify-between items-center text-sm text-gray-500 mb-4">
               <span>Origin: {product.origin}</span>
               <span>Price: {product.price}</span>

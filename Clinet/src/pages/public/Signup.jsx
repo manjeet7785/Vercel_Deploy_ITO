@@ -39,14 +39,15 @@ const Signup = () => {
     try {
       const response = await register(formData);
       if (response.success) {
-        toast.success('Account created successfully! Welcome aboard! 🎉', {
+        toast.success('Account created successfully! Verification OTP sent to your email. 🎉', {
           style: {
             borderRadius: '10px',
             background: '#333',
             color: '#fff',
           },
         });
-        navigate('/login');
+        localStorage.setItem('verificationEmail', formData.email);
+        navigate('/verify-email');
       }
     } catch (error) {
       console.error('Signup error:', error);
@@ -62,8 +63,6 @@ const Signup = () => {
       setLoading(false);
     }
   };
-
-  // Department options must match backend allowed values
   const departmentOptions = [
     { value: 'STONE', label: 'Stone Department' },
     { value: 'COAL', label: 'Coal Department' },
@@ -80,7 +79,6 @@ const Signup = () => {
     { value: 'FINANCE', label: 'Finance Department' }
   ];
 
-  // Role options must match backend allowed values
   const roleOptions = [
     { value: 'ADMIN', label: 'Admin' },
     { value: 'MANAGER', label: 'Manager' },
@@ -95,20 +93,18 @@ const Signup = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 via-white to-gray-100 py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-      {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-32 w-80 h-80 bg-green-100 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse"></div>
+        <div className="absolute -top-40 -right-32 w-80 h-80 bg-blue-100 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse"></div>
         <div className="absolute -bottom-40 -left-32 w-80 h-80 bg-blue-100 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse delay-1000"></div>
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-purple-100 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse delay-2000"></div>
       </div>
 
       <div className="max-w-2xl w-full space-y-8 relative z-10">
-        {/* Header section */}
         <div className="text-center">
           <div className="flex justify-center mb-4">
             <div className="relative group">
-              <div className="absolute inset-0 bg-green-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
-              <div className="relative h-16 w-16 bg-gradient-to-br from-green-600 to-green-500 rounded-2xl flex items-center justify-center shadow-lg transform transition-transform group-hover:scale-105">
+              <div className="absolute inset-0 bg-blue-600 rounded-2xl blur-lg opacity-75 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <div className="relative h-16 w-16 bg-gradient-to-br from-blue-600 to-blue-500 rounded-2xl flex items-center justify-center shadow-lg transform transition-transform group-hover:scale-105">
                 <FiUserPlus className="h-8 w-8 text-white" />
               </div>
             </div>
@@ -120,14 +116,11 @@ const Signup = () => {
             Join our team and start your journey
           </p>
         </div>
-
-        {/* Form section */}
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Employee ID */}
             <div className="relative group">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
-                <FiBriefcase className="h-5 w-5 text-gray-400 group-focus-within:text-green-500 transition-colors duration-200" />
+                <FiBriefcase className="h-5 w-5 text-gray-400 group-focus-within:text-blue-500 transition-colors duration-200" />
               </div>
               <input
                 id="employeeId"
@@ -136,18 +129,16 @@ const Signup = () => {
                 required
                 value={formData.employeeId}
                 onChange={(e) => setFormData({ ...formData, employeeId: e.target.value })}
-                className="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-xl bg-white/50 backdrop-blur-sm placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 shadow-sm hover:shadow"
+                className="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-xl bg-white/50 backdrop-blur-sm placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 shadow-sm hover:shadow"
                 placeholder="Employee ID"
               />
               <label htmlFor="employeeId" className="absolute -top-2 left-3 px-1 text-xs text-gray-500 bg-white/80 rounded-md transition-all duration-200">
                 Employee ID *
               </label>
             </div>
-
-            {/* Full Name */}
             <div className="relative group">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
-                <FiUser className="h-5 w-5 text-gray-400 group-focus-within:text-green-500 transition-colors duration-200" />
+                <FiUser className="h-5 w-5 text-gray-400 group-focus-within:text-blue-500 transition-colors duration-200" />
               </div>
               <input
                 id="fullName"
@@ -156,18 +147,16 @@ const Signup = () => {
                 required
                 value={formData.fullName}
                 onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                className="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-xl bg-white/50 backdrop-blur-sm placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 shadow-sm hover:shadow"
+                className="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-xl bg-white/50 backdrop-blur-sm placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 shadow-sm hover:shadow"
                 placeholder="Full Name"
               />
               <label htmlFor="fullName" className="absolute -top-2 left-3 px-1 text-xs text-gray-500 bg-white/80 rounded-md transition-all duration-200">
                 Full Name *
               </label>
             </div>
-
-            {/* Email */}
             <div className="relative group">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
-                <FiMail className="h-5 w-5 text-gray-400 group-focus-within:text-green-500 transition-colors duration-200" />
+                <FiMail className="h-5 w-5 text-gray-400 group-focus-within:text-blue-500 transition-colors duration-200" />
               </div>
               <input
                 id="email"
@@ -176,18 +165,16 @@ const Signup = () => {
                 required
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-xl bg-white/50 backdrop-blur-sm placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 shadow-sm hover:shadow"
+                className="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-xl bg-white/50 backdrop-blur-sm placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 shadow-sm hover:shadow"
                 placeholder="Email address"
               />
               <label htmlFor="email" className="absolute -top-2 left-3 px-1 text-xs text-gray-500 bg-white/80 rounded-md transition-all duration-200">
                 Email *
               </label>
             </div>
-
-            {/* Phone */}
             <div className="relative group">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
-                <FiPhone className="h-5 w-5 text-gray-400 group-focus-within:text-green-500 transition-colors duration-200" />
+                <FiPhone className="h-5 w-5 text-gray-400 group-focus-within:text-blue-500 transition-colors duration-200" />
               </div>
               <input
                 id="phone"
@@ -195,18 +182,16 @@ const Signup = () => {
                 type="tel"
                 value={formData.phone}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                className="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-xl bg-white/50 backdrop-blur-sm placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 shadow-sm hover:shadow"
+                className="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-xl bg-white/50 backdrop-blur-sm placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 shadow-sm hover:shadow"
                 placeholder="Phone number"
               />
               <label htmlFor="phone" className="absolute -top-2 left-3 px-1 text-xs text-gray-500 bg-white/80 rounded-md transition-all duration-200">
                 Phone Number
               </label>
             </div>
-
-            {/* Password */}
             <div className="relative group md:col-span-2">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
-                <FiLock className="h-5 w-5 text-gray-400 group-focus-within:text-green-500 transition-colors duration-200" />
+                <FiLock className="h-5 w-5 text-gray-400 group-focus-within:text-blue-500 transition-colors duration-200" />
               </div>
               <input
                 id="password"
@@ -215,7 +200,7 @@ const Signup = () => {
                 required
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                className="block w-full pl-10 pr-12 py-3 border border-gray-200 rounded-xl bg-white/50 backdrop-blur-sm placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 shadow-sm hover:shadow"
+                className="block w-full pl-10 pr-12 py-3 border border-gray-200 rounded-xl bg-white/50 backdrop-blur-sm placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 shadow-sm hover:shadow"
                 placeholder="Password"
               />
               <label htmlFor="password" className="absolute -top-2 left-3 px-1 text-xs text-gray-500 bg-white/80 rounded-md transition-all duration-200">
@@ -229,11 +214,9 @@ const Signup = () => {
                 {showPassword ? <FiEyeOff className="h-5 w-5" /> : <FiEye className="h-5 w-5" />}
               </button>
             </div>
-
-            {/* Role */}
             <div className="relative group">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
-                <FiShield className="h-5 w-5 text-gray-400 group-focus-within:text-green-500 transition-colors duration-200" />
+                <FiShield className="h-5 w-5 text-gray-400 group-focus-within:text-blue-500 transition-colors duration-200" />
               </div>
               <select
                 id="role"
@@ -241,7 +224,7 @@ const Signup = () => {
                 required
                 value={formData.role}
                 onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-                className="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-xl bg-white/50 backdrop-blur-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 shadow-sm hover:shadow appearance-none cursor-pointer"
+                className="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-xl bg-white/50 backdrop-blur-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 shadow-sm hover:shadow appearance-none cursor-pointer"
               >
                 <option value="" disabled>Select Role *</option>
                 {roleOptions.map(option => (
@@ -252,11 +235,9 @@ const Signup = () => {
                 Role *
               </label>
             </div>
-
-            {/* Department */}
             <div className="relative group">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
-                <FiTag className="h-5 w-5 text-gray-400 group-focus-within:text-green-500 transition-colors duration-200" />
+                <FiTag className="h-5 w-5 text-gray-400 group-focus-within:text-blue-500 transition-colors duration-200" />
               </div>
               <select
                 id="department"
@@ -264,7 +245,7 @@ const Signup = () => {
                 required
                 value={formData.department}
                 onChange={(e) => setFormData({ ...formData, department: e.target.value })}
-                className="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-xl bg-white/50 backdrop-blur-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200 shadow-sm hover:shadow appearance-none cursor-pointer"
+                className="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-xl bg-white/50 backdrop-blur-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 shadow-sm hover:shadow appearance-none cursor-pointer"
               >
                 <option value="" disabled>Select Department *</option>
                 {departmentOptions.map(option => (
@@ -278,12 +259,10 @@ const Signup = () => {
               </label>
             </div>
           </div>
-
-          {/* Submit button */}
           <button
             type="submit"
             disabled={loading}
-            className="group relative w-full flex justify-center items-center gap-2 py-3 px-4 border border-transparent text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-70 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-green-500/25"
+            className="group relative w-full flex justify-center items-center gap-2 py-3 px-4 border border-transparent text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-70 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-blue-500/25"
           >
             {loading ? (
               <div className="flex items-center gap-2">
@@ -297,14 +276,12 @@ const Signup = () => {
               </>
             )}
           </button>
-
-          {/* Sign in link */}
           <div className="text-center">
             <p className="text-sm text-gray-600">
               Already have an account?{' '}
               <Link
-                to="/login"
-                className="font-semibold text-green-600 hover:text-green-500 transition-colors duration-200 inline-flex items-center gap-1 group"
+                to="/employee-login"
+                className="font-semibold text-blue-600 hover:text-blue-500 transition-colors duration-200 inline-flex items-center gap-1 group"
               >
                 Sign in
                 <FiArrowRight className="h-3 w-3 group-hover:translate-x-0.5 transition-transform" />
@@ -312,8 +289,6 @@ const Signup = () => {
             </p>
           </div>
         </form>
-
-        {/* Divider */}
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
             <div className="w-full border-t border-gray-200"></div>

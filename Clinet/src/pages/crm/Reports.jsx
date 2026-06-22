@@ -39,7 +39,7 @@ export default function Reports() {
         }));
       }
 
-      // Generate monthly data (mock for now)
+      
       const monthlyData = [
         { month: 'Jan', leads: 45, won: 12, lost: 8 },
         { month: 'Feb', leads: 52, won: 15, lost: 10 },
@@ -109,7 +109,7 @@ export default function Reports() {
         </div>
       </div>
 
-      {/* Lead Pipeline Chart */}
+      
       <div className="card">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Lead Pipeline</h2>
         <ResponsiveContainer width="100%" height={350}>
@@ -124,7 +124,7 @@ export default function Reports() {
         </ResponsiveContainer>
       </div>
 
-      {/* Monthly Trends */}
+      
       <div className="card">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Monthly Trends</h2>
         <ResponsiveContainer width="100%" height={350}>
@@ -141,7 +141,7 @@ export default function Reports() {
         </ResponsiveContainer>
       </div>
 
-      {/* Employee Performance */}
+      
       <div className="card">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Employee Performance</h2>
         <ResponsiveContainer width="100%" height={350}>
@@ -158,7 +158,7 @@ export default function Reports() {
         </ResponsiveContainer>
       </div>
 
-      {/* Stage Distribution Pie Chart */}
+      
       <div className="card">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Stage Distribution</h2>
         <ResponsiveContainer width="100%" height={350}>

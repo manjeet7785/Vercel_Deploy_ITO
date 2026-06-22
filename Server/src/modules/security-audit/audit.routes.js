@@ -1,16 +1,13 @@
-import { Router } from 'express';
-import { getLogsAndAlerts, revealSensitiveData, interceptBulkExportAttempt } from './audit.controller.js';
-import { protect } from '../../middlewares/auth.middleware.js';
-import { authorizeRoles } from '../../middlewares/rbac.middleware.js';
+const router = require('express').Router();
+const { authenticate } = require('../../middlewares/auth.middleware');
+const rbac = require('../../middlewares/rbac.middleware');
+const { getLogs, getAlerts, revealSensitiveData, interceptBulkExportAttempt } = require('./audit.controller');
 
-const router = Router();
-router.get('/dashboard', protect, authorizeRoles('ADMIN'), getLogsAndAlerts);
-router.post('/reveal', protect, revealSensitiveData);
-router.post('/export-attempt', protect, interceptBulkExportAttempt);
+router.use(authenticate);
 
-export default router;
+router.get('/alerts', rbac('ADMIN', 'MANAGER'), getAlerts);
+router.get('/logs', rbac('ADMIN'), getLogs);
+router.post('/reveal', revealSensitiveData);
+router.post('/export-attempt', interceptBulkExportAttempt);
 
-
-
-
-
+module.exports = router;

@@ -31,6 +31,11 @@ export const adminApi = {
     return response.data;
   },
 
+  async createUser(userData) {
+    const response = await axiosInstance.post('/users', userData);
+    return response.data;
+  },
+
   async assignLead(leadId, assignData) {
     const response = await axiosInstance.patch(`/admin/leads/${leadId}/assign`, assignData);
     return response.data;
@@ -63,6 +68,36 @@ export const adminApi = {
 
   async updateProductUploadPermission(userId, productUploadPermission) {
     const response = await axiosInstance.patch(`/admin/users/${userId}/product-upload-permission`, { productUploadPermission });
+    return response.data;
+  },
+
+  async updateLeadPermission(userId, leadPermission) {
+    const response = await axiosInstance.patch(`/admin/users/${userId}/lead-permission`, { leadPermission });
+    return response.data;
+  },
+
+  async updateDocumentPermission(userId, documentPermission) {
+    const response = await axiosInstance.patch(`/admin/users/${userId}/document-permission`, { documentPermission });
+    return response.data;
+  },
+
+  async updateTaskPermission(userId, taskPermission) {
+    const response = await axiosInstance.patch(`/admin/users/${userId}/task-permission`, { taskPermission });
+    return response.data;
+  },
+
+  async updateDispatchPermission(userId, dispatchPermission) {
+    const response = await axiosInstance.patch(`/admin/users/${userId}/dispatch-permission`, { dispatchPermission });
+    return response.data;
+  },
+
+  async updatePaymentPermission(userId, paymentPermission) {
+    const response = await axiosInstance.patch(`/admin/users/${userId}/payment-permission`, { paymentPermission });
+    return response.data;
+  },
+
+  async updateQuotationPermission(userId, quotationPermission) {
+    const response = await axiosInstance.patch(`/admin/users/${userId}/quotation-permission`, { quotationPermission });
     return response.data;
   },
 

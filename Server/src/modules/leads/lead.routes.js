@@ -1,13 +1,39 @@
-import { Router } from 'express';
-import { createLead, getLeads, updateLeadStage } from './lead.controller.js';
-import { protect } from '../../middlewares/auth.middleware.js';
-import { authorizeRoles } from '../../middlewares/rbac.middleware.js';
-import { enforceDataMasking } from '../../middlewares/mask.middleware.js';
+const router = require('express').Router();
+const { authenticate } = require('../../middlewares/auth.middleware');
+const rbac = require('../../middlewares/rbac.middleware');
+const checkPermission = require('../../middlewares/permission.middleware');
+const { getLeadsList, getLeadDetails, changeLeadStage } = require('./lead.controller');
+const { createFromChat } = require('./ai-agent/aiLead.controller');
+const { scoreLead } = require('./ai-agent/leadScoring.service');
 
-const router = Router();
-router.post('/', protect, authorizeRoles('ADMIN', 'SALES'), createLead);
-router.post('/from-chat', protect, authorizeRoles('ADMIN', 'SALES'), createLead);
-router.get('/', protect, authorizeRoles('ADMIN', 'SALES'), enforceDataMasking, getLeads);
-router.patch('/:id/stage', protect, authorizeRoles('ADMIN', 'SALES'), updateLeadStage);
+router.use(authenticate);
 
-export default router;
+
+router.post('/from-chat', createFromChat);
+router.post('/score', async (req, res, next) => {
+  try {
+    const { score, priority } = require('./ai-agent/leadScoring.service').scoreAndClassifyLead(req.body);
+    return require('../../utils/response').ok(res, { score, priority }, 'Lead scored successfully', 200, req);
+  } catch (error) {
+    next(error);
+  }
+});
+
+
+router.get('/', checkPermission('leadPermission', 'taskPermission'), getLeadsList);
+router.get('/unassigned', rbac('ADMIN', 'MANAGER', 'HR'), checkPermission('leadPermission', 'taskPermission'), async (req, res, next) => {
+  try {
+    const Lead = require('./lead.model');
+    const { getLeadDisplay } = require('./lead.service');
+    const leads = await Lead.find({ assignedTo: null }).sort({ createdAt: -1 });
+    return require('../../utils/response').ok(res, { leads: leads.map(l => getLeadDisplay(l, req.user)) }, 'Unassigned leads list', 200, req);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get('/:id', checkPermission('leadPermission', 'taskPermission'), getLeadDetails);
+router.patch('/:id/stage', checkPermission('leadPermission', 'taskPermission'), changeLeadStage);
+router.patch('/:id', checkPermission('leadPermission', 'taskPermission'), changeLeadStage); 
+
+module.exports = router;

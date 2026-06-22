@@ -172,7 +172,7 @@ export default function Security() {
         </div>
       )}
 
-      {/* Logs Tab */}
+      
       {activeTab === 'logs' && (
         <div className="card overflow-x-auto">
           <table className="w-full">

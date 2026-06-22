@@ -3,6 +3,7 @@ import { FiMessageCircle, FiX, FiSend, FiCornerDownLeft } from 'react-icons/fi';
 import { chatApi } from '../../api/chat';
 import { leadsApi } from '../../api/leads';
 import toast from 'react-hot-toast';
+import { Link } from 'react-router-dom';
 
 export default function ChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
@@ -14,7 +15,7 @@ export default function ChatWidget() {
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef(null);
 
-  // Check if session exists in sessionStorage
+  
   useEffect(() => {
     const savedSessionId = sessionStorage.getItem('chatSessionId');
     if (savedSessionId) {
@@ -22,7 +23,6 @@ export default function ChatWidget() {
     }
   }, []);
 
-  // Poll for messages every 4 seconds when widget is open and session exists
   useEffect(() => {
     let intervalId;
     if (isOpen && session?.sessionId) {
@@ -34,7 +34,6 @@ export default function ChatWidget() {
     };
   }, [isOpen, session]);
 
-  // Scroll to bottom whenever messages list updates
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
@@ -93,7 +92,6 @@ export default function ChatWidget() {
     const msgText = newMessage;
     setNewMessage('');
 
-    // Optimistically update UI
     const tempMsg = {
       _id: 'temp_' + Date.now(),
       sessionId: session.sessionId,
@@ -153,86 +151,102 @@ export default function ChatWidget() {
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 font-sans">
-      {/* Floating Action Button */}
+    <div className="fixed bottom-4 sm:bottom-6 right-4 sm:right-6 z-50 font-sans">
+
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="flex items-center justify-center w-14 h-14 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-full shadow-2xl hover:scale-105 transition-all duration-200"
+          className="group flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-full shadow-2xl hover:scale-105 transition-all duration-200 hover:shadow-xl"
         >
-          <FiMessageCircle size={26} />
+          <FiMessageCircle size={22} className="sm:size-26" />
         </button>
       )}
 
-      {/* Floating Chat Container */}
       {isOpen && (
-        <div className="w-80 sm:w-96 h-[500px] bg-white rounded-2xl shadow-2xl border border-slate-200/80 flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-5 duration-200">
-          {/* Header */}
+        <div className="w-[90vw] sm:w-96 h-[80vh] sm:h-[550px] bg-white rounded-2xl shadow-2xl border border-slate-200/80 flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-5 duration-200">
+
           <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-4 flex items-center justify-between shadow-md">
             <div className="flex items-center space-x-3">
-              <div className="w-2.5 h-2.5 bg-green-400 rounded-full animate-pulse"></div>
+              <div className="relative">
+                <div className="w-2.5 h-2.5 bg-green-400 rounded-full"></div>
+                <div className="absolute inset-0 w-2.5 h-2.5 bg-green-400 rounded-full animate-ping opacity-75"></div>
+              </div>
               <div>
-                <h4 className="font-bold text-sm">ITO Trade Support</h4>
-                <p className="text-[10px] text-blue-100 font-medium">Typically replies in a minute</p>
+                <h4 className="font-bold text-sm sm:text-base">ITO AI Support</h4>
+                <p className="text-[10px] sm:text-xs text-blue-100 font-medium">Grow With ITO</p>
               </div>
             </div>
             <button
               onClick={() => setIsOpen(false)}
-              className="text-white/80 hover:text-white hover:bg-white/10 p-1.5 rounded-lg transition"
+              className="text-white/80 hover:text-white hover:bg-white/10 p-1.5 rounded-lg transition-all duration-200"
             >
               <FiX size={18} />
             </button>
           </div>
 
-          {/* Body */}
-          <div className="flex-1 p-4 overflow-y-auto bg-slate-50 flex flex-col space-y-4">
+          <div className="flex-1 p-3 sm:p-4 overflow-y-auto bg-gradient-to-b from-slate-50 to-white flex flex-col space-y-3 sm:space-y-4 custom-scrollbar">
             {!session ? (
-              /* Onboarding Form */
               <form onSubmit={handleStartChat} className="space-y-4 my-auto">
                 <div className="text-center mb-4">
-                  <h5 className="font-bold text-slate-800 text-base">Let's start our conversation!</h5>
-                  <p className="text-slate-500 text-xs mt-1">Please introduce yourself to chat with a support agent.</p>
+                  <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg">
+                    <FiMessageCircle size={28} className="text-white" />
+                  </div>
+                  <h5 className="font-bold text-slate-800 text-base sm:text-lg">Welcome! 👋</h5>
+                  <p className="text-slate-500 text-xs sm:text-sm mt-1">Let's start our conversation!</p>
                 </div>
+
                 <div>
-                  <label className="label text-xs">Name *</label>
+                  <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1.5">
+                    Full Name <span className="text-red-500">*</span>
+                  </label>
                   <input
                     type="text"
                     required
                     value={clientName}
                     onChange={(e) => setClientName(e.target.value)}
-                    className="input text-sm"
+                    className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all duration-200 text-sm sm:text-base"
                     placeholder="Enter your name"
                   />
                 </div>
+
                 <div>
-                  <label className="label text-xs">Email Address (Optional)</label>
+                  <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1.5">
+                    Email Address <span className="text-gray-400 text-xs">(Optional)</span>
+                  </label>
                   <input
                     type="email"
                     value={clientEmail}
                     onChange={(e) => setClientEmail(e.target.value)}
-                    className="input text-sm"
+                    className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all duration-200 text-sm sm:text-base"
                     placeholder="name@company.com"
                   />
                 </div>
+
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold py-2.5 rounded-xl text-sm shadow hover:from-blue-700 hover:to-indigo-700 transition"
+                  className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold py-2.5 rounded-xl text-sm sm:text-base shadow-md hover:shadow-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {loading ? 'Initializing...' : 'Start Chat'}
+                  {loading ? (
+                    <div className="flex items-center justify-center space-x-2">
+                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                      <span>Initializing...</span>
+                    </div>
+                  ) : (
+                    'Start Chat'
+                  )}
                 </button>
               </form>
             ) : (
-              /* Message logs list */
               <>
-                {messages.map((msg) => {
+                {messages.map((msg, index) => {
                   const isClient = msg.sender === 'CLIENT';
                   const isSystem = msg.sender === 'SYSTEM';
 
                   if (isSystem) {
                     return (
-                      <div key={msg._id} className="text-center px-4 py-1">
-                        <span className="inline-block bg-slate-200/80 text-[11px] text-slate-600 px-3 py-1 rounded-full font-medium leading-relaxed">
+                      <div key={msg._id || index} className="flex justify-center px-4 py-1">
+                        <span className="inline-block bg-slate-200/80 text-[10px] sm:text-xs text-slate-600 px-3 py-1 rounded-full font-medium">
                           {msg.message}
                         </span>
                       </div>
@@ -241,16 +255,17 @@ export default function ChatWidget() {
 
                   return (
                     <div
-                      key={msg._id}
-                      className={`flex flex-col ${isClient ? 'items-end' : 'items-start'}`}
+                      key={msg._id || index}
+                      className={`flex flex-col animate-in slide-in-from-bottom-2 duration-200 ${isClient ? 'items-end' : 'items-start'
+                        }`}
                     >
-                      <span className="text-[10px] text-slate-400 font-medium mb-1 px-1">
+                      <span className="text-[9px] sm:text-[10px] text-slate-400 font-medium mb-0.5 px-1">
                         {isClient ? 'You' : msg.senderName}
                       </span>
                       <div
-                        className={`max-w-[80%] rounded-2xl px-4 py-2 text-sm leading-relaxed shadow-sm ${isClient
-                            ? 'bg-blue-600 text-white rounded-br-none'
-                            : 'bg-white text-slate-800 border border-slate-200 rounded-bl-none'
+                        className={`max-w-[85%] rounded-2xl px-3 sm:px-4 py-2 text-xs sm:text-sm leading-relaxed shadow-sm ${isClient
+                          ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-br-none'
+                          : 'bg-white text-slate-800 border border-slate-200 rounded-bl-none'
                           }`}
                       >
                         {msg.message}
@@ -262,38 +277,51 @@ export default function ChatWidget() {
               </>
             )}
           </div>
-
-          {/* Predefined Quick Options */}
           {session && (
-            <div className="px-4 py-2 bg-slate-100 border-t border-slate-200 space-y-1.5 select-none">
-              <p className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Quick Actions</p>
-              <div className="flex flex-wrap gap-1.5">
+            <div className="px-3 sm:px-4 py-2 sm:py-3 bg-slate-50 border-t border-slate-200 space-y-1.5">
+              <p className="text-[8px] sm:text-[9px] font-bold text-slate-500 uppercase tracking-wider flex items-center">
+                <FiCornerDownLeft size={10} className="mr-1" />
+                Quick Actions
+              </p>
+              <div className="flex flex-wrap gap-1.5 sm:gap-2">
                 <button
                   type="button"
                   onClick={() => handleQuickOptionClick("I want to inquire about Stone Aggregates delivery.")}
-                  className="px-2 py-0.5 text-[10px] bg-white border border-slate-200 rounded text-slate-700 hover:bg-slate-50 transition"
+                  className="px-2 py-1 text-[9px] sm:text-[10px] bg-white border border-slate-200 rounded-full text-slate-700 hover:bg-slate-100 hover:border-slate-300 transition-all duration-200"
                 >
-                  🪨 Stone
+                  🪨 Stone Aggregates
                 </button>
                 <button
                   type="button"
                   onClick={() => handleQuickOptionClick("I need Coal bulk pricing.")}
-                  className="px-2 py-0.5 text-[10px] bg-white border border-slate-200 rounded text-slate-700 hover:bg-slate-50 transition"
+                  className="px-2 py-1 text-[9px] sm:text-[10px] bg-white border border-slate-200 rounded-full text-slate-700 hover:bg-slate-100 hover:border-slate-300 transition-all duration-200"
                 >
-                  🔥 Coal
+                  🔥 Coal Bulk
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleQuickOptionClick("I need a quote for minerals.")}
+                  className="px-2 py-1 text-[9px] sm:text-[10px] bg-white border border-slate-200 rounded-full text-slate-700 hover:bg-slate-100 hover:border-slate-300 transition-all duration-200"
+                >
+                  💎 Minerals Quote
                 </button>
                 <button
                   type="button"
                   onClick={handleCreateCrmLeadFromChat}
-                  className="px-2 py-0.5 text-[10px] bg-blue-50 border border-blue-200 rounded text-blue-700 hover:bg-blue-100 font-semibold transition"
+                  className="px-2 py-1 text-[9px] sm:text-[10px] bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-full text-blue-700 hover:from-blue-100 hover:to-indigo-100 font-semibold transition-all duration-200"
                 >
                   🚀 Create CRM Lead
+                </button>
+                <button
+                  type="button"
+                  className="px-2 py-1 text-[9px] sm:text-[10px] bg-white border border-slate-200 rounded-full text-slate-700 hover:bg-slate-100 hover:border-slate-300 transition-all duration-200"
+                >
+                  <Link to="/contact">Contact US</Link>
                 </button>
               </div>
             </div>
           )}
 
-          {/* Footer input */}
           {session && (
             <form onSubmit={handleSendMessage} className="p-3 bg-white border-t border-slate-200 flex items-center space-x-2">
               <input
@@ -301,14 +329,14 @@ export default function ChatWidget() {
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
                 placeholder="Type your message here..."
-                className="flex-1 px-3 py-2 border border-slate-200 rounded-xl outline-none focus:border-blue-500 text-sm"
+                className="flex-1 px-3 sm:px-4 py-2 border border-slate-200 rounded-xl outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-sm sm:text-base transition-all duration-200"
               />
               <button
                 type="submit"
                 disabled={!newMessage.trim()}
-                className="p-2.5 rounded-xl bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition"
+                className="p-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200 shadow-md hover:shadow-lg"
               >
-                <FiSend size={16} />
+                <FiSend size={14} />
               </button>
             </form>
           )}

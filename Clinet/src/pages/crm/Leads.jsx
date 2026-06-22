@@ -158,7 +158,7 @@ export default function Leads() {
         </div>
       </div>
 
-      {/* Filters */}
+      
       <div className="card">
         <div className="flex flex-col md:flex-row gap-4">
           <div className="flex-1 relative">

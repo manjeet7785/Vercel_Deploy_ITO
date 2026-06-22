@@ -13,7 +13,8 @@ import {
   FiSettings,
   FiX,
   FiPackage,
-  FiCheckSquare
+  FiCheckSquare,
+  FiBell
 } from 'react-icons/fi';
 
 export default function Sidebar({ onClose }) {
@@ -21,14 +22,15 @@ export default function Sidebar({ onClose }) {
 
   const menuItems = [
     { to: '/crm/dashboard', label: 'Dashboard', icon: FiLayout },
-    { to: '/crm/tasks', label: 'My Tasks', icon: FiCheckSquare },
-    { to: '/crm/leads', label: 'Leads', icon: FiUsers },
+    { to: '/crm/notifications', label: 'Notifications', icon: FiBell },
+    (user?.role === 'ADMIN' || user?.taskPermission === true) && { to: '/crm/tasks', label: 'My Tasks', icon: FiCheckSquare },
+    (user?.role === 'ADMIN' || user?.leadPermission === true) && { to: '/crm/leads', label: 'Leads', icon: FiUsers },
     { to: '/crm/products', label: 'Products', icon: FiPackage },
     { to: '/crm/quotations', label: 'Quotations', icon: FiFileText },
     { to: '/crm/dispatches', label: 'Dispatches', icon: FiTruck },
     { to: '/crm/payments', label: 'Payments', icon: FiDollarSign },
-    { to: '/crm/documents', label: 'Documents', icon: FiFolder },
-  ];
+    (user?.role === 'ADMIN' || user?.documentPermission === true) && { to: '/crm/documents', label: 'Documents', icon: FiFolder },
+  ].filter(Boolean);
 
   const adminMenuItems = [
     { to: '/crm/admin', label: 'Admin Panel', icon: FiSettings },
@@ -38,17 +40,17 @@ export default function Sidebar({ onClose }) {
   ];
 
   return (
-    <aside className="h-full bg-gray-900 text-white flex flex-col">
-      <div className="p-6 border-b border-gray-800 flex items-center justify-between">
+    <aside className="h-full bg-[#0f4c75] text-white flex flex-col">
+      <div className="p-6 border-b border-[#144c7c] flex items-center justify-between">
         <div>
           <h1 className="text-xl font-bold">ITO Exim CRM</h1>
-          <p className="text-sm text-gray-400 mt-1">{user?.role}</p>
+          <p className="text-sm text-[#cbd5e1] mt-1">{user?.role}</p>
         </div>
         {onClose && (
           <button
             type="button"
             onClick={onClose}
-            className="md:hidden rounded-lg p-2 text-gray-300 hover:bg-gray-800 hover:text-white transition"
+            className="md:hidden rounded-lg p-2 text-[#dbeafe] hover:bg-[#144c7c] hover:text-white transition"
           >
             <FiX size={20} />
           </button>
@@ -57,15 +59,14 @@ export default function Sidebar({ onClose }) {
 
       <nav className="flex-1 py-4">
         <div className="px-4 mb-2">
-          <p className="text-xs text-gray-500 uppercase tracking-wider">Main</p>
+          <p className="text-xs text-[#a8c5dc] uppercase tracking-wider">Main</p>
         </div>
         {menuItems.map((item) => (
           <NavLink
             key={item.to}
             to={item.to}
             className={({ isActive }) =>
-              `flex items-center space-x-3 px-6 py-3 text-gray-300 hover:bg-gray-800 hover:text-white transition-colors ${isActive ? 'bg-gray-800 text-white border-r-4 border-indigo-600' : ''
-              }`
+              `flex items-center space-x-3 px-6 py-3 text-[#dbeafe] hover:bg-[#144c7c] hover:text-white transition-colors ${isActive ? 'bg-[#144c7c] text-white border-r-4 border-[#f5a524]' : ''}`
             }
           >
             <item.icon size={20} />
@@ -76,15 +77,14 @@ export default function Sidebar({ onClose }) {
         {(user?.role === 'ADMIN' || user?.role === 'MANAGER') && (
           <>
             <div className="px-4 mt-6 mb-2">
-              <p className="text-xs text-gray-500 uppercase tracking-wider">Administration</p>
+              <p className="text-xs text-[#a8c5dc] uppercase tracking-wider">Administration</p>
             </div>
             {adminMenuItems.map((item) => (
               <NavLink
                 key={item.to}
                 to={item.to}
                 className={({ isActive }) =>
-                  `flex items-center space-x-3 px-6 py-3 text-gray-300 hover:bg-gray-800 hover:text-white transition-colors ${isActive ? 'bg-gray-800 text-white border-r-4 border-indigo-600' : ''
-                  }`
+                  `flex items-center space-x-3 px-6 py-3 text-[#dbeafe] hover:bg-[#144c7c] hover:text-white transition-colors ${isActive ? 'bg-[#144c7c] text-white border-r-4 border-[#f5a524]' : ''}`
                 }
               >
                 <item.icon size={20} />

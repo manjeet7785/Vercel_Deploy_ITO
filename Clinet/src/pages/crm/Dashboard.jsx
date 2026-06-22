@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { adminApi } from '../../api/admin';
 import { dashboardApi } from '../../api/dashboard';
 import { notificationsApi } from '../../api/notifications';
@@ -106,8 +107,9 @@ export default function Dashboard() {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat, index) => (
-          <div key={index} className="card hover:shadow-md transition duration-200">
+        {stats.map((stat, index) => {
+          const isNotificationCard = stat.title === 'Unread Notifications';
+          const cardContent = (
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 font-medium">{stat.title}</p>
@@ -117,8 +119,26 @@ export default function Dashboard() {
                 <stat.icon className="text-white" size={24} />
               </div>
             </div>
-          </div>
-        ))}
+          );
+
+          if (isNotificationCard) {
+            return (
+              <Link 
+                key={index} 
+                to="/crm/notifications" 
+                className="card hover:shadow-md transition duration-200 hover:border-violet-300 bg-gradient-to-br hover:from-violet-50/20 hover:to-white block cursor-pointer"
+              >
+                {cardContent}
+              </Link>
+            );
+          }
+
+          return (
+            <div key={index} className="card hover:shadow-md transition duration-200">
+              {cardContent}
+            </div>
+          );
+        })}
       </div>
 
       {isAdmin ? (

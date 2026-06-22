@@ -1,20 +1,30 @@
+const router = require('express').Router();
+const { authenticate } = require('../../middlewares/auth.middleware');
+const rbac = require('../../middlewares/rbac.middleware');
+const { requestQuotation, pendingQuotations, approveQuotation, rejectQuotation, markSentToCustomer, getSummaryReport } = require('./quotation.controller');
 
-import { Router } from 'express';
-import { requestQuotation, getPendingQuotations, approveQuotation } from './quotation.controller.js';
-import { protect } from '../../middlewares/auth.middleware.js';
-import { authorizeRoles } from '../../middlewares/rbac.middleware.js';
+router.use(authenticate);
 
-const router = Router();
-router.post('/request', protect, authorizeRoles('SALES', 'ADMIN'), requestQuotation);
-router.get('/pending', protect, authorizeRoles('ADMIN'), getPendingQuotations);
-router.patch('/:id/approve', protect, authorizeRoles('ADMIN'), approveQuotation);
+router.post('/request', requestQuotation);
+router.get('/pending', pendingQuotations);
 
-export default router;
+const checkQuotationApprovalAccess = (req, res, next) => {
+  if (req.user.role === 'ADMIN' || req.user.quotationPermission === true) {
+    return next();
+  }
+  return require('../../utils/response').fail(
+    res,
+    403,
+    'RBAC_FORBIDDEN',
+    'Forbidden: Access restricted to Admin or users with quotation approval permission',
+    [],
+    req
+  );
+};
 
+router.patch('/:id/approve', checkQuotationApprovalAccess, approveQuotation);
+router.patch('/:id/reject', checkQuotationApprovalAccess, rejectQuotation);
+router.patch('/:id/sent-to-customer', markSentToCustomer);
+router.get('/summary', rbac('ADMIN', 'MANAGER'), getSummaryReport);
 
-
-
-
-
-
-
+module.exports = router;

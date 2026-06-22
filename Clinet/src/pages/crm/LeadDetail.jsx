@@ -35,7 +35,7 @@ export default function LeadDetail() {
 
   useEffect(() => {
     fetchLeadDetails();
-    if (user?.role === 'ADMIN' || user?.role === 'MANAGER') {
+    if (user?.role === 'ADMIN' || user?.role === 'MANAGER' || user?.role === 'HR') {
       fetchUsers();
     }
   }, [id, user]);
@@ -213,14 +213,19 @@ export default function LeadDetail() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      
       <div className="flex justify-between items-center">
         <div className="flex items-center space-x-4">
           <button onClick={() => navigate('/crm/leads')} className="text-gray-600 hover:text-gray-900">
             <FiArrowLeft size={24} />
           </button>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">{lead.customerName}</h1>
+            <div className="flex items-center space-x-3">
+              <h1 className="text-2xl font-bold text-gray-900">{lead.customerName}</h1>
+              <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider ${getStageColor(lead.stage)}`}>
+                {lead.stage.replace(/_/g, ' ')}
+              </span>
+            </div>
             <p className="text-gray-600">{lead.leadCode}</p>
           </div>
         </div>
@@ -245,31 +250,35 @@ export default function LeadDetail() {
         </div>
       </div>
 
-      {/* Lead Info Cards */}
+      
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
         <div className="card relative">
           <div className="flex justify-between items-start">
             <p className="text-sm text-gray-600">Phone</p>
-            <button
-              onClick={() => handleUnmaskClick('phone')}
-              className="text-slate-400 hover:text-blue-600 transition"
-              title="Reveal phone"
-            >
-              <FiEye size={16} />
-            </button>
+            {!(user?.role === 'ADMIN' || user?.role === 'MANAGER' || user?.role === 'HR') && (
+              <button
+                onClick={() => handleUnmaskClick('phone')}
+                className="text-slate-400 hover:text-blue-600 transition"
+                title="Reveal phone"
+              >
+                <FiEye size={16} />
+              </button>
+            )}
           </div>
           <p className="text-lg font-semibold mt-1 text-ellipsis overflow-hidden">{revealedPhone || lead.phoneMasked || 'N/A'}</p>
         </div>
         <div className="card relative">
           <div className="flex justify-between items-start">
             <p className="text-sm text-gray-600">Email</p>
-            <button
-              onClick={() => handleUnmaskClick('email')}
-              className="text-slate-400 hover:text-blue-600 transition"
-              title="Reveal email"
-            >
-              <FiEye size={16} />
-            </button>
+            {!(user?.role === 'ADMIN' || user?.role === 'MANAGER' || user?.role === 'HR') && (
+              <button
+                onClick={() => handleUnmaskClick('email')}
+                className="text-slate-400 hover:text-blue-600 transition"
+                title="Reveal email"
+              >
+                <FiEye size={16} />
+              </button>
+            )}
           </div>
           <p className="text-lg font-semibold mt-1 text-ellipsis overflow-hidden">{revealedEmail || lead.emailMasked || 'N/A'}</p>
         </div>
@@ -295,8 +304,8 @@ export default function LeadDetail() {
         </div>
       </div>
 
-      {/* Assignment Management (Admin/Manager Only) */}
-      {(user?.role === 'ADMIN' || user?.role === 'MANAGER') && (
+      {/* Assignment Management (Admin/Manager/HR Only) */}
+      {(user?.role === 'ADMIN' || user?.role === 'MANAGER' || user?.role === 'HR') && (
         <div className="card">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Assign Task / Lead</h2>
           <form onSubmit={handleAssign} className="flex flex-col md:flex-row gap-4 items-end">
@@ -380,7 +389,7 @@ export default function LeadDetail() {
         </div>
       )}
 
-      {/* Stage Management */}
+      
       <div className="card">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Stage Management</h2>
         <div className="flex flex-wrap gap-2">
@@ -520,7 +529,7 @@ export default function LeadDetail() {
         </div>
       )}
 
-      {/* Warning Justification Modal */}
+      
       {showWarningModal && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden transform transition-all border border-slate-100">

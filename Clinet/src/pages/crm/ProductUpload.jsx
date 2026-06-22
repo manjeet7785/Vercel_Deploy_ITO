@@ -1,8 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { FiPlus, FiTag, FiDollarSign, FiGlobe, FiFileText, FiImage, FiGrid, FiTrash2 } from 'react-icons/fi';
+import { FiPlus, FiTag, FiDollarSign, FiGlobe, FiFileText, FiImage, FiGrid, FiUpload } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import { productsApi } from '../../api/products';
 import { useAuth } from '../../hooks/useAuth';
+
+
+const imagesByCategory = {
+  stone: '/images/natural_stones.png',
+  natural_stones: '/images/natural_stones.png',
+  industrial_coal: '/images/industrial_coal.png',
+  premium_tea: '/images/premium_tea.png',
+  rice_commodities: '/images/basmati_rice.png',
+  vegetables: '/images/premium_tea.png',
+  fruits: '/images/premium_tea.png'
+};
 
 export default function ProductUpload() {
   const { user } = useAuth();
@@ -37,19 +48,27 @@ export default function ProductUpload() {
   };
 
   const autoGenerateImage = () => {
-    const imagesByCategory = {
-      stone: 'https://images.unsplash.com/photo-1549887534-1541e9326642?w=600',
-      coal: 'https://images.unsplash.com/photo-1581094288338-1a3eb6e1c5a4?w=600',
-      tea: 'https://images.unsplash.com/photo-1544787219-7f47ccb77374?w=600',
-      rice: 'https://images.unsplash.com/photo-1586201375761-83865001b0e5?w=600'
-    };
-
     const selectedImage = imagesByCategory[formData.category] || imagesByCategory.stone;
     setFormData(prev => ({
       ...prev,
       image: selectedImage
     }));
-    toast.success('Assigned cover image matching category! 🖼️');
+    toast.success('Assigned cover image matching category!');
+  };
+
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData(prev => ({ ...prev, image: reader.result }));
+        toast.success('Local image uploaded and processed successfully!');
+      };
+      reader.onerror = () => {
+        toast.error('Failed to read local file.');
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -82,7 +101,7 @@ export default function ProductUpload() {
           <h1 className="text-2xl font-bold text-gray-900">Manage Products</h1>
           <p className="text-gray-600">Add, edit, or configure import-export catalog items</p>
         </div>
-        {(user?.role === 'ADMIN' || user?.productUploadPermission) && (
+        {(['ADMIN', 'MANAGER', 'IT', 'SOFTWARE_ENGINEER'].includes(user?.role) || user?.productUploadPermission) && (
           <button
             onClick={() => setShowModal(true)}
             className="btn-primary bg-indigo-600 text-white hover:bg-indigo-700 px-4 py-2.5 rounded-xl flex items-center space-x-2 shadow-lg transition-transform active:scale-95"
@@ -106,20 +125,20 @@ export default function ProductUpload() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {products.map((product) => (
-            <div key={product._id} className="card flex flex-col justify-between hover:shadow-md transition">
+            <div key={product._id} className="card flex flex-col justify-between hover:shadow-lg transition">
               <div>
                 <img
-                  src={product.image}
+                  src={product.image || product.imageUrl}
                   alt={product.name}
-                  className="w-full h-48 object-cover rounded-lg mb-4"
+                  className="w-full h-64 object-cover rounded-lg mb-4"
                 />
-                <div className="flex justify-between items-start mb-2">
-                  <h3 className="text-lg font-bold text-gray-900">{product.name}</h3>
-                  <span className="text-xs font-semibold uppercase tracking-wider text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full">
+                <div className="flex justify-between items-start mb-2 gap-2 min-w-0">
+                  <h3 className="text-xl font-semibold text-gray-900 break-all flex-1 min-w-0">{product.name}</h3>
+                  <span className="text-xs font-semibold uppercase tracking-wider text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full shrink-0">
                     {product.category}
                   </span>
                 </div>
-                <p className="text-gray-600 text-sm mb-4 leading-relaxed line-clamp-3">
+                <p className="text-gray-600 text-sm mb-4 leading-relaxed line-clamp-3 break-all">
                   {product.description}
                 </p>
               </div>
@@ -172,12 +191,15 @@ export default function ProductUpload() {
                   <select
                     value={formData.category}
                     onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                    className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm cursor-pointer"
+                    className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm cursor-pointer placeholder:text-slate-400"
                   >
-                    <option value="stone">Natural Stones</option>
-                    <option value="coal">Industrial Coal</option>
-                    <option value="tea">Premium Tea</option>
-                    <option value="rice">Rice Commodities</option>
+                    <option value="">Select Category *</option>
+                    <option value="natural_stones">Natural Stones</option>
+                    <option value="industrial_coal">Industrial Coal</option>
+                    <option value="premium_tea">Premium Tea</option>
+                    <option value="rice_commodities">Rice Commodities</option>
+                    <option value="vegetables">Vegetables</option>
+                    <option value="fruits">Fruits</option>
                   </select>
                 </div>
 
@@ -193,7 +215,7 @@ export default function ProductUpload() {
                       value={formData.origin}
                       onChange={(e) => setFormData({ ...formData, origin: e.target.value })}
                       className="w-full pl-10 pr-3.5 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm placeholder:text-slate-400"
-                      placeholder="Enter Origin Country"
+                      placeholder="Enter Your Origin Country"
                     />
                   </div>
                 </div>
@@ -212,35 +234,42 @@ export default function ProductUpload() {
                       value={formData.price}
                       onChange={(e) => setFormData({ ...formData, price: e.target.value })}
                       className="w-full pl-10 pr-3.5 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm placeholder:text-slate-400"
-                      placeholder="Enter FOB Price Range"
+                      placeholder="Enter Your Product Price Range"
                     />
                   </div>
                 </div>
 
                 <div>
                   <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">
-                    Image URL *
+                    Image URL or File *
                   </label>
                   <div className="flex space-x-2">
                     <div className="relative flex-1">
                       <FiImage className="absolute left-3.5 top-1/2 transform -translate-y-1/2 text-gray-400" />
                       <input
-                        type="url"
+                        type="text"
                         required
                         value={formData.image}
                         onChange={(e) => setFormData({ ...formData, image: e.target.value })}
                         className="w-full pl-10 pr-3.5 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm placeholder:text-slate-400"
-                        placeholder="https://images.unsplash.com/..."
+                        placeholder="URL or Upload File"
                       />
                     </div>
-                    <button
-                      type="button"
-                      onClick={autoGenerateImage}
-                      className="btn-secondary px-3 text-xs flex items-center justify-center shrink-0 border border-slate-200"
-                      title="Auto-generate an image matching selected category"
+
+                    {/* Choose File Styled Label Button */}
+                    <label
+                      className="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 rounded-xl flex items-center justify-center shrink-0 border border-slate-200 cursor-pointer text-xs font-medium transition active:scale-95"
+                      title="Upload image from your device"
                     >
-                      Auto
-                    </button>
+                      <FiUpload className="mr-1" size={14} />
+                      File
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={handleFileUpload}
+                      />
+                    </label>
                   </div>
                 </div>
               </div>
