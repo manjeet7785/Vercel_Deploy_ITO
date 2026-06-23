@@ -29,7 +29,7 @@ export default function Products() {
       price: '20-50/kg',
       name: 'RM Natural Unpolished Decorative Pebbles for Home & Garden Decor',
       image: 'https://m.media-amazon.com/images/I/61FSFnx6r-L._SL1024_.jpg',
-      category: 'Minerals & Construction',
+      category: 'construction',
       description: 'RM Natural Unpolished Decorative Pebbles for Home & Garden Decor (5kg, Rainbow, 20-50mm) | Raw Natural Stones for Landscaping, Plant Pots, Fillers, Aquarium, Pathways, Indoor Outdoor Use'
     },
     {
@@ -38,7 +38,7 @@ export default function Products() {
       price: '20-50/kg',
       name: 'Solid Natural Stone ',
       image: 'https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcSwiWjzogncwMWMQlEe7c4SMhst0Rle2wP7KS9PYFWU0FmAqF4zXlPU0XT9fKdA1v4MDDMoqhkqnthlc5Qwnada7xkk1BMW',
-      category: 'Construction',
+      category: 'construction',
       description: 'Solid Natural Stone- 60 mm Size, Heat-Resistant and Durable for Building Applications'
     },
     {
@@ -47,7 +47,7 @@ export default function Products() {
       price: '20-50/kg',
       name: 'Reflectix Expansion Joint',
       image: 'https://m.media-amazon.com/images/I/41AWyJc1pWL._AC_UF1000,1000_QL80_.jpg',
-      category: 'Construction',
+      category: 'construction',
       description: 'Reflectix Expansion Joint.'
     },
     {
@@ -56,7 +56,7 @@ export default function Products() {
       price: '20-50/kg',
       name: 'Gfrp Fiberglass Bar, Epoxy Composite Fiberglass Rebar',
       image: "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcTz7SO8-Tud-Feg53A0TptPFRY6zRCkI7Z5Abg_KC4fCccB7MSJWB9rDk7yZr-to8vgPoVt42xMlRJP6YY4JTVhuM0WUBDM",
-      category: 'Fiberglass Rebar',
+      category: 'fiberglass_rebar',
       description: 'Gfrp Fiberglass Bar, Epoxy Composite Fiberglass Rebar'
     }
   ];
@@ -64,12 +64,14 @@ export default function Products() {
   const categories = [
     { value: 'all', label: 'All Products' },
     { value: 'stone', label: 'Natural Stones' },
-    { value: 'Minerals & Construction', label: 'Minerals & Construction' },
-    { value: 'Construction', label: 'Construction' },
-    { value: 'Fiberglass Rebar', label: 'Fiberglass Rebar' },
     { value: 'coal', label: 'Coal' },
     { value: 'tea', label: 'Tea' },
     { value: 'rice', label: 'Rice' },
+    { value: 'vegetable', label: 'Vegetable' },
+    { value: 'fruit', label: 'Fruit' },
+    { value: 'wheat', label: 'Wheat' },
+    { value: 'construction', label: 'Construction Material' },
+    { value: 'fiberglass_rebar', label: 'Fiberglass Rebar' }
   ];
 
   const products = [...dbProducts, ...staticProducts];

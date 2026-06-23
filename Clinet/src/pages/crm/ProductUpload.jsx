@@ -7,12 +7,14 @@ import { useAuth } from '../../hooks/useAuth';
 
 const imagesByCategory = {
   stone: '/images/natural_stones.png',
-  natural_stones: '/images/natural_stones.png',
-  industrial_coal: '/images/industrial_coal.png',
-  premium_tea: '/images/premium_tea.png',
-  rice_commodities: '/images/basmati_rice.png',
-  vegetables: '/images/premium_tea.png',
-  fruits: '/images/premium_tea.png'
+  coal: '/images/industrial_coal.png',
+  tea: '/images/premium_tea.png',
+  rice: '/images/basmati_rice.png',
+  vegetable: '/images/premium_tea.png',
+  fruit: '/images/premium_tea.png',
+  wheat: '/images/basmati_rice.png',
+  construction: '/images/natural_stones.png',
+  fiberglass_rebar: '/images/natural_stones.png'
 };
 
 export default function ProductUpload() {
@@ -194,12 +196,15 @@ export default function ProductUpload() {
                     className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm cursor-pointer placeholder:text-slate-400"
                   >
                     <option value="">Select Category *</option>
-                    <option value="natural_stones">Natural Stones</option>
-                    <option value="industrial_coal">Industrial Coal</option>
-                    <option value="premium_tea">Premium Tea</option>
-                    <option value="rice_commodities">Rice Commodities</option>
-                    <option value="vegetables">Vegetables</option>
-                    <option value="fruits">Fruits</option>
+                    <option value="stone">Natural Stones</option>
+                    <option value="coal">Industrial Coal</option>
+                    <option value="tea">Premium Tea</option>
+                    <option value="rice">Rice Commodities</option>
+                    <option value="vegetable">Vegetables</option>
+                    <option value="fruit">Fruits</option>
+                    <option value="wheat">Wheat</option>
+                    <option value="construction">Construction Material</option>
+                    <option value="fiberglass_rebar">Fiberglass Rebar</option>
                   </select>
                 </div>
 

@@ -3,10 +3,10 @@ const { authenticate } = require('../../middlewares/auth.middleware');
 const { getProducts, createProduct } = require('./product.controller');
 const { fail } = require('../../utils/response');
 
-router.use(authenticate);
 router.get('/', getProducts);
 router.post(
   '/',
+  authenticate,
   (req, res, next) => {
     if (
       ['ADMIN', 'MANAGER', 'IT', 'SOFTWARE_ENGINEER'].includes(req.user.role) ||
