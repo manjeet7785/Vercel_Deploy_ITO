@@ -3,8 +3,8 @@ const mongoose = require('mongoose');
 const auditLogSchema = new mongoose.Schema(
   {
     actorId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
-    actionType: { 
-      type: String, 
+    actionType: {
+      type: String,
       required: true,
       enum: [
         'LOGIN_SUCCESS',

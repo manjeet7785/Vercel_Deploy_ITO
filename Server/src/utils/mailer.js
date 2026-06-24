@@ -1,5 +1,25 @@
 const nodemailer = require('nodemailer');
 const env = require('../config/env');
+const dns = require('dns');
+
+// Force IPv4 lookup for mail domains to avoid ENETUNREACH errors on networks without IPv6
+const originalLookup = dns.lookup;
+dns.lookup = function (hostname, options, callback) {
+  if (typeof options === 'function') {
+    callback = options;
+    options = {};
+  }
+  if (hostname && (hostname.includes('gmail') || hostname.includes('google') || hostname.includes('smtp'))) {
+    if (typeof options === 'number') {
+      options = 4;
+    } else if (typeof options === 'object') {
+      options = { ...options, family: 4 };
+    } else {
+      options = { family: 4 };
+    }
+  }
+  return originalLookup.call(dns, hostname, options, callback);
+};
 
 const transporter = nodemailer.createTransport({
   service: 'gmail',

@@ -13,5 +13,10 @@ export const productsApi = {
   async createProduct(productData) {
     const response = await axiosInstance.post('/products', productData);
     return response.data;
+  },
+
+  async deleteProduct(productId) {
+    const response = await axiosInstance.delete(`/products/${productId}`);
+    return response.data;
   }
 };

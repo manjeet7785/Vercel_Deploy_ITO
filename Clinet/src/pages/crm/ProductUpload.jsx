@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FiPlus, FiTag, FiDollarSign, FiGlobe, FiFileText, FiImage, FiGrid, FiUpload } from 'react-icons/fi';
+import { FiPlus, FiTag, FiDollarSign, FiGlobe, FiFileText, FiImage, FiGrid, FiUpload, FiTrash2 } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import { productsApi } from '../../api/products';
 import { useAuth } from '../../hooks/useAuth';
@@ -61,6 +61,10 @@ export default function ProductUpload() {
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
+      if (file.size > 1024 * 1024) { // Limit to 1MB
+        toast.error('File size is too large! Please upload an image smaller than 1MB.');
+        return;
+      }
       const reader = new FileReader();
       reader.onloadend = () => {
         setFormData(prev => ({ ...prev, image: reader.result }));
@@ -96,6 +100,21 @@ export default function ProductUpload() {
     }
   };
 
+  const handleDeleteProduct = async (productId) => {
+    if (window.confirm('Are you sure you want to permanently delete this product from the catalog?')) {
+      try {
+        const response = await productsApi.deleteProduct(productId);
+        if (response.success) {
+          toast.success('Product deleted successfully!');
+          fetchProducts();
+        }
+      } catch (error) {
+        console.error('Error deleting product:', error);
+        toast.error(error.response?.data?.message || 'Failed to delete product.');
+      }
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -126,30 +145,50 @@ export default function ProductUpload() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {products.map((product) => (
-            <div key={product._id} className="card flex flex-col justify-between hover:shadow-lg transition">
-              <div>
-                <img
-                  src={product.image || product.imageUrl}
-                  alt={product.name}
-                  className="w-full h-64 object-cover rounded-lg mb-4"
-                />
-                <div className="flex justify-between items-start mb-2 gap-2 min-w-0">
-                  <h3 className="text-xl font-semibold text-gray-900 break-all flex-1 min-w-0">{product.name}</h3>
-                  <span className="text-xs font-semibold uppercase tracking-wider text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full shrink-0">
-                    {product.category}
-                  </span>
+          {products.map((product) => {
+            const canDelete = user?.role === 'ADMIN' || 
+              (product.createdBy && 
+                (product.createdBy === user?._id || 
+                 product.createdBy._id === user?._id || 
+                 String(product.createdBy) === String(user?._id))
+              );
+
+            return (
+              <div key={product._id} className="card flex flex-col justify-between hover:shadow-lg transition">
+                <div>
+                  <img
+                    src={product.image || product.imageUrl}
+                    alt={product.name}
+                    className="w-full h-64 object-cover rounded-lg mb-4"
+                  />
+                  <div className="flex justify-between items-start mb-2 gap-2 min-w-0">
+                    <h3 className="text-xl font-semibold text-gray-900 break-all flex-1 min-w-0">{product.name}</h3>
+                    <span className="text-xs font-semibold uppercase tracking-wider text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full shrink-0">
+                      {product.category}
+                    </span>
+                  </div>
+                  <p className="text-gray-600 text-sm mb-4 leading-relaxed line-clamp-3 break-all">
+                    {product.description}
+                  </p>
                 </div>
-                <p className="text-gray-600 text-sm mb-4 leading-relaxed line-clamp-3 break-all">
-                  {product.description}
-                </p>
+                <div className="pt-4 border-t border-slate-100 flex justify-between items-center text-sm text-gray-500">
+                  <div className="flex flex-col">
+                    <span>Origin: <strong>{product.origin}</strong></span>
+                    <span>FOB Price: <strong className="text-green-600">{product.price}</strong></span>
+                  </div>
+                  {canDelete && (
+                    <button
+                      onClick={() => handleDeleteProduct(product._id)}
+                      className="p-2 text-red-600 hover:text-white hover:bg-red-600 rounded-xl border border-red-200 transition-all duration-150 cursor-pointer active:scale-95 flex items-center justify-center"
+                      title="Delete Product"
+                    >
+                      <FiTrash2 size={16} />
+                    </button>
+                  )}
+                </div>
               </div>
-              <div className="pt-4 border-t border-slate-100 flex justify-between items-center text-sm text-gray-500">
-                <span>Origin: <strong>{product.origin}</strong></span>
-                <span>FOB Price: <strong className="text-green-600">{product.price}</strong></span>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 

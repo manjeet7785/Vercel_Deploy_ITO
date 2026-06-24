@@ -22,7 +22,22 @@ export default function Leads() {
     destination: ''
   });
 
-  const stages = ['NEW_LEAD', 'ASSIGNED', 'CONTACTED', 'QUOTATION_REQUIRED', 'QUOTATION_REQUESTED', 'QUOTATION_SHARED', 'DISPATCH_PLANNED', 'PAYMENT_PENDING', 'CLOSED_WON', 'CLOSED_LOST'];
+  const stages = [
+    'NEW_LEAD',
+    'LEAD_QUALIFICATION',
+    'FOLLOW_UP',
+    'REQUIREMENT_CAPTURED',
+    'QUOTATION_REQUIRED',
+    'QUOTATION_PENDING_APPROVAL',
+    'QUOTATION_APPROVED',
+    'NEGOTIATION',
+    'LOI_PO_PENDING',
+    'ORDER_CONFIRMED',
+    'DISPATCH_PENDING',
+    'PAYMENT_PENDING',
+    'CLOSED_WON',
+    'CLOSED_LOST'
+  ];
 
   useEffect(() => {
     fetchLeads();
@@ -119,16 +134,20 @@ export default function Leads() {
 
   const getStageColor = (stage) => {
     const colors = {
-      NEW_LEAD: 'bg-blue-100 text-blue-800',
-      ASSIGNED: 'bg-indigo-100 text-indigo-800',
-      CONTACTED: 'bg-purple-100 text-purple-800',
-      QUOTATION_REQUIRED: 'bg-yellow-100 text-yellow-800',
-      QUOTATION_REQUESTED: 'bg-orange-100 text-orange-800',
-      QUOTATION_SHARED: 'bg-green-100 text-green-800',
-      DISPATCH_PLANNED: 'bg-teal-100 text-teal-800',
-      PAYMENT_PENDING: 'bg-red-100 text-red-800',
-      CLOSED_WON: 'bg-emerald-100 text-emerald-800',
-      CLOSED_LOST: 'bg-gray-100 text-gray-800'
+      NEW_LEAD: 'bg-sky-50 text-sky-700 border border-sky-200/60',
+      LEAD_QUALIFICATION: 'bg-violet-50 text-violet-700 border border-violet-200/60',
+      FOLLOW_UP: 'bg-purple-50 text-purple-700 border border-purple-200/60',
+      REQUIREMENT_CAPTURED: 'bg-fuchsia-50 text-fuchsia-700 border border-fuchsia-200/60',
+      QUOTATION_REQUIRED: 'bg-amber-50 text-amber-700 border border-amber-200/60',
+      QUOTATION_PENDING_APPROVAL: 'bg-yellow-50 text-yellow-700 border border-yellow-200/60',
+      QUOTATION_APPROVED: 'bg-emerald-50 text-emerald-700 border border-emerald-200/60',
+      NEGOTIATION: 'bg-orange-50 text-orange-700 border border-orange-200/60',
+      LOI_PO_PENDING: 'bg-indigo-50 text-indigo-700 border border-indigo-200/60',
+      ORDER_CONFIRMED: 'bg-teal-50 text-teal-700 border border-teal-200/60',
+      DISPATCH_PENDING: 'bg-cyan-50 text-cyan-700 border border-cyan-200/60',
+      PAYMENT_PENDING: 'bg-rose-50 text-rose-700 border border-rose-200/60',
+      CLOSED_WON: 'bg-emerald-50 text-emerald-700 border border-emerald-200/60',
+      CLOSED_LOST: 'bg-slate-100 text-slate-700 border border-slate-200'
     };
     return colors[stage] || 'bg-gray-100 text-gray-800';
   };

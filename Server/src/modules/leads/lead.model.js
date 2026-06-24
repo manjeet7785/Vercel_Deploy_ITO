@@ -3,10 +3,10 @@ const mongoose = require('mongoose');
 const leadSchema = new mongoose.Schema(
   {
     leadCode: { type: String, unique: true, required: true, index: true },
-    source: { 
-      type: String, 
-      enum: ['WEBSITE', 'AI_AGENT', 'WHATSAPP', 'INDIAMART', 'MANUAL', 'IMPORT'], 
-      required: true 
+    source: {
+      type: String,
+      enum: ['WEBSITE', 'AI_AGENT', 'WHATSAPP', 'INDIAMART', 'MANUAL', 'IMPORT'],
+      required: true
     },
     customerName: { type: String, required: true },
     companyName: { type: String, default: '' },
@@ -20,27 +20,33 @@ const leadSchema = new mongoose.Schema(
     productCategory: { type: String, required: true },
     quantity: { type: String, default: '' },
     destination: { type: String, default: '' },
-    priority: { 
-      type: String, 
-      enum: ['HOT', 'WARM', 'COLD', 'FAKE', 'INCOMPLETE'], 
+    priority: {
+      type: String,
+      enum: ['HOT', 'WARM', 'COLD', 'FAKE', 'INCOMPLETE'],
       default: 'WARM',
-      index: true 
+      index: true
     },
     stage: {
       type: String,
       enum: [
         'NEW_LEAD',
+        'ASSIGNED',
+        'CONTACTED',
         'LEAD_QUALIFICATION',
         'FOLLOW_UP',
         'REQUIREMENT_CAPTURED',
         'QUOTATION_REQUIRED',
         'QUOTATION_PENDING_APPROVAL',
         'QUOTATION_APPROVED',
+        'QUOTATION_REQUESTED',
+        'QUOTATION_SHARED',
         'NEGOTIATION',
         'LOI_PO_PENDING',
         'ORDER_CONFIRMED',
         'DISPATCH_PENDING',
+        'DISPATCH_PLANNED',
         'PAYMENT_PENDING',
+        'DOCUMENT_PENDING',
         'CLOSED_WON',
         'CLOSED_LOST'
       ],
@@ -48,14 +54,14 @@ const leadSchema = new mongoose.Schema(
       index: true
     },
     assignedTo: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null, index: true },
-    assignedDepartment: { 
-      type: String, 
-      enum: ['STONE', 'COAL', 'TEA', 'RICE', 'TRANSPORT', 'ADMIN', 'IT', 'PROCUREMENT', 'ACCOUNTS', 'HR', 'SALES'], 
-      default: null 
+    assignedDepartment: {
+      type: String,
+      enum: ['STONE', 'COAL', 'TEA', 'RICE', 'TRANSPORT', 'ADMIN', 'IT', 'PROCUREMENT', 'ACCOUNTS', 'HR', 'SALES'],
+      default: null
     },
     duplicateOf: { type: mongoose.Schema.Types.ObjectId, ref: 'Lead', default: null },
     chatSummary: { type: String, default: '' },
-    originalPayload: { type: Object, default: {} }, 
+    originalPayload: { type: Object, default: {} },
     nextFollowupAt: { type: Date, default: null },
     remarks: { type: String, default: '' },
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null }

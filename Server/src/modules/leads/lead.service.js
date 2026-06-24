@@ -5,18 +5,24 @@ const { recordAudit, raiseAlert } = require('../security-audit/auditLog.service'
 const { maskPhone, maskEmail } = require('../../utils/crypto');
 
 const allowedStageTransitions = {
-  NEW_LEAD: ['LEAD_QUALIFICATION', 'CLOSED_LOST'],
+  NEW_LEAD: ['ASSIGNED', 'LEAD_QUALIFICATION', 'CLOSED_LOST'],
+  ASSIGNED: ['CONTACTED', 'QUOTATION_REQUIRED', 'CLOSED_LOST'],
+  CONTACTED: ['QUOTATION_REQUIRED', 'CLOSED_LOST'],
   LEAD_QUALIFICATION: ['FOLLOW_UP', 'CLOSED_LOST'],
   FOLLOW_UP: ['REQUIREMENT_CAPTURED', 'CLOSED_LOST'],
   REQUIREMENT_CAPTURED: ['QUOTATION_REQUIRED', 'CLOSED_LOST'],
-  QUOTATION_REQUIRED: ['QUOTATION_PENDING_APPROVAL', 'CLOSED_LOST'],
+  QUOTATION_REQUIRED: ['QUOTATION_PENDING_APPROVAL', 'QUOTATION_REQUESTED', 'CLOSED_LOST'],
   QUOTATION_PENDING_APPROVAL: ['QUOTATION_APPROVED', 'CLOSED_LOST'],
   QUOTATION_APPROVED: ['NEGOTIATION', 'CLOSED_LOST'],
+  QUOTATION_REQUESTED: ['QUOTATION_SHARED', 'CLOSED_LOST'],
+  QUOTATION_SHARED: ['DISPATCH_PLANNED', 'CLOSED_WON', 'CLOSED_LOST'],
   NEGOTIATION: ['LOI_PO_PENDING', 'CLOSED_LOST'],
   LOI_PO_PENDING: ['ORDER_CONFIRMED', 'CLOSED_LOST'],
   ORDER_CONFIRMED: ['DISPATCH_PENDING', 'CLOSED_LOST'],
   DISPATCH_PENDING: ['PAYMENT_PENDING', 'CLOSED_LOST'],
-  PAYMENT_PENDING: ['CLOSED_WON', 'CLOSED_LOST'],
+  DISPATCH_PLANNED: ['PAYMENT_PENDING', 'CLOSED_LOST'],
+  PAYMENT_PENDING: ['DOCUMENT_PENDING', 'CLOSED_WON', 'CLOSED_LOST'],
+  DOCUMENT_PENDING: ['CLOSED_WON', 'CLOSED_LOST'],
   CLOSED_WON: [],
   CLOSED_LOST: []
 };
@@ -42,10 +48,10 @@ function canAccessLead(user, lead) {
 function getLeadDisplay(lead, user) {
   const leadObj = lead.toObject ? lead.toObject() : lead;
   const { decryptText } = require('../../utils/crypto');
-  
-  
+
+
   if (user && (user.role === 'ADMIN' || user.role === 'MANAGER' || user.role === 'HR')) {
-    
+
     const decryptedPhone = decryptText(leadObj.phoneEncrypted);
     const decryptedEmail = leadObj.emailEncrypted ? decryptText(leadObj.emailEncrypted) : '';
     return {
@@ -56,7 +62,7 @@ function getLeadDisplay(lead, user) {
       emailMasked: decryptedEmail
     };
   }
-  
+
   return {
     ...leadObj,
     phone: leadObj.phoneMasked,
@@ -67,7 +73,7 @@ function getLeadDisplay(lead, user) {
 async function listLeads(user, query = {}) {
   const filter = {};
   if (query.stage) filter.stage = query.stage;
-  
+
   if (
     user.role !== 'ADMIN' &&
     user.role !== 'MANAGER' &&
@@ -80,7 +86,7 @@ async function listLeads(user, query = {}) {
   ) {
     filter.assignedTo = user._id;
   }
-  
+
   const leads = await Lead.find(filter).sort({ createdAt: -1 });
   return leads.map(l => getLeadDisplay(l, user));
 }
@@ -88,11 +94,11 @@ async function listLeads(user, query = {}) {
 async function getLeadById(id, user) {
   const lead = await Lead.findById(id);
   if (!lead) throw new Error('LEAD_NOT_FOUND');
-  
+
   if (!canAccessLead(user, lead)) {
     throw new Error('OWNERSHIP_FORBIDDEN');
   }
-  
+
   const activities = await LeadActivity.find({ leadId: lead._id }).sort({ createdAt: -1 });
   return {
     lead: getLeadDisplay(lead, user),
@@ -103,8 +109,8 @@ async function getLeadById(id, user) {
 async function updateStage({ leadId, newStage, remark = '', nextFollowupAt = null, user, ipAddress, deviceHash }) {
   const lead = await Lead.findById(leadId);
   if (!lead) throw new Error('LEAD_NOT_FOUND');
-  
-  
+
+
   if (!canAccessLead(user, lead)) {
     await recordAudit({
       actorId: user._id,
@@ -119,20 +125,20 @@ async function updateStage({ leadId, newStage, remark = '', nextFollowupAt = nul
     throw new Error('OWNERSHIP_FORBIDDEN');
   }
 
-  
+
   const previousStage = lead.stage;
   const isAllowed = allowedStageTransitions[previousStage]?.includes(newStage);
   if (!isAllowed) {
     throw new Error(`INVALID_STAGE_TRANSITION: Cannot transition from ${previousStage} to ${newStage}`);
   }
 
-  
+
   lead.stage = newStage;
   if (remark) lead.remarks = remark;
   if (nextFollowupAt) lead.nextFollowupAt = nextFollowupAt;
   await lead.save();
 
-  
+
   const activity = await LeadActivity.create({
     leadId: lead._id,
     actionType: 'LEAD_STAGE_CHANGED',
@@ -142,7 +148,7 @@ async function updateStage({ leadId, newStage, remark = '', nextFollowupAt = nul
     metadata: { fromStage: previousStage, toStage: newStage }
   });
 
-  
+
   if (newStage === 'QUOTATION_REQUIRED') {
     const existingQuotation = await Quotation.findOne({ leadId: lead._id, status: 'PENDING' });
     if (!existingQuotation) {
@@ -156,7 +162,7 @@ async function updateStage({ leadId, newStage, remark = '', nextFollowupAt = nul
     }
   }
 
-  
+
   await recordAudit({
     actorId: user._id,
     actionType: 'LEAD_STAGE_CHANGED',
@@ -183,20 +189,20 @@ async function assignLead({ leadId, assignedTo, assignedDepartment, user }) {
   const oldAssignedTo = lead.assignedTo;
   const oldAssignedDept = lead.assignedDepartment;
 
-  
+
   lead.assignedTo = assignedTo || null;
   lead.assignedDepartment = assignedDepartment || null;
 
-  
-  
-  
+
+
+
   if (lead.stage === 'NEW_LEAD' && (assignedTo || assignedDepartment)) {
     lead.stage = 'ASSIGNED';
   }
 
   await lead.save();
 
-  
+
   await LeadActivity.create({
     leadId: lead._id,
     actionType: 'LEAD_ASSIGNED',
@@ -204,7 +210,7 @@ async function assignLead({ leadId, assignedTo, assignedDepartment, user }) {
     actorId: user._id
   });
 
-  
+
   if (assignedTo && String(assignedTo) !== String(oldAssignedTo)) {
     await Notification.create({
       targetUserId: assignedTo,
@@ -221,7 +227,7 @@ async function assignLead({ leadId, assignedTo, assignedDepartment, user }) {
     });
   }
 
-  
+
   await recordAudit({
     actorId: user._id,
     actionType: 'LEAD_ASSIGNED',

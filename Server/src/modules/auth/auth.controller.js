@@ -211,10 +211,22 @@ async function requestOtp(req, res, next) {
     const user = await User.findOne({ email });
     if (!user) return fail(res, 404, 'VALIDATION_FAILED', 'User not found');
 
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otp = generateOtp();
     user.otp = otp;
-    user.otpExpires = new Date(Date.now() + 5 * 60 * 1000);
+    user.otpExpires = new Date(Date.now() + 15 * 60 * 1000);
     await user.save();
+
+    // Also write to otpModel (used by verifyEmail) so resend OTP works for email verification
+    const otpHash = await bcrypt.hash(otp, 10);
+    await otpModel.deleteMany({ email: user.email });
+    await otpModel.create({
+      email: user.email,
+      user: user._id,
+      otpHash
+    });
+
+    // Send email (will log to console and gracefully handle failures)
+    await sendEmail(user.email, 'Email Verification Code', null, getOtpHtml(otp));
 
     await recordAudit({
       actorId: user._id,
@@ -226,7 +238,7 @@ async function requestOtp(req, res, next) {
       metadata: { email }
     });
 
-    return ok(res, { otp }, 'OTP generated successfully (Demo Mode)', 200, req);
+    return ok(res, {}, 'OTP generated successfully', 200, req);
   } catch (error) {
     next(error);
   }

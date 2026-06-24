@@ -268,8 +268,8 @@ export default function ChatWidget() {
                       </span>
                       <div
                         className={`rounded-2xl px-3.5 py-2 text-xs sm:text-sm leading-relaxed shadow-sm break-words w-full ${isClient
-                            ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-br-none'
-                            : 'bg-white text-slate-800 border border-slate-200 rounded-bl-none'
+                          ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-br-none'
+                          : 'bg-white text-slate-800 border border-slate-200 rounded-bl-none'
                           }`}
                       >
                         {msg.message}

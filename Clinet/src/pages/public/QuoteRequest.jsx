@@ -66,7 +66,6 @@ export default function QuoteRequest() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      {/* Heading Section */}
       <div className="text-center mb-10">
         <h1 className="text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl">
           Request a Quote
@@ -76,11 +75,11 @@ export default function QuoteRequest() {
         </p>
       </div>
 
-      
+
       <div className="bg-white border border-gray-200 shadow-sm rounded-2xl p-6 sm:p-10">
         <form onSubmit={handleSubmit} className="space-y-6">
 
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1.5">Full Name <span className="text-rose-500">*</span></label>
@@ -105,7 +104,6 @@ export default function QuoteRequest() {
             </div>
           </div>
 
-          {/* Row 2: Phone & Email */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1.5">Phone Number <span className="text-rose-500">*</span></label>
@@ -131,7 +129,6 @@ export default function QuoteRequest() {
             </div>
           </div>
 
-          {/* Row 3: Product & Quantity */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1.5">Product Category <span className="text-rose-500">*</span></label>
@@ -160,7 +157,6 @@ export default function QuoteRequest() {
             </div>
           </div>
 
-          {/* Destination */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1.5">Destination Port/City</label>
             <input
@@ -172,7 +168,6 @@ export default function QuoteRequest() {
             />
           </div>
 
-          {/* Requirements Message */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1.5">Additional Requirements</label>
             <textarea
@@ -184,7 +179,6 @@ export default function QuoteRequest() {
             ></textarea>
           </div>
 
-          {/* Action Button */}
           <button
             type="submit"
             disabled={submitting}

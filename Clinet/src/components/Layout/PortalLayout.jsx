@@ -24,7 +24,7 @@ export default function PortalLayout({ children }) {
 
   return (
     <div className="min-h-screen bg-[#f8fafc]">
-      
+
       <div className="md:hidden bg-[#f8fafc] shadow-sm border-b border-[#cbd5e1] fixed top-0 left-0 right-0 z-[52]">
         <div className="flex items-center justify-between px-4 py-3">
           <button
@@ -41,7 +41,7 @@ export default function PortalLayout({ children }) {
       </div>
 
       <div className="flex min-h-screen">
-        {/* Sidebar */}
+
         <div
           className={`fixed inset-y-0 left-0 z-[60] w-64 sm:w-72 transform bg-gradient-to-b from-[#0f4c75] to-[#0a3a5c] text-white transition-all duration-300 ease-in-out shadow-xl md:static md:translate-x-0 md:shadow-none ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'
             }`}
@@ -49,7 +49,6 @@ export default function PortalLayout({ children }) {
           <Sidebar onClose={() => isMobile && setSidebarOpen(false)} />
         </div>
 
-        {/* Backdrop for mobile */}
         {sidebarOpen && (
           <div
             className="fixed inset-0 z-[55] bg-black/50 backdrop-blur-sm md:hidden animate-fadeIn"
@@ -58,9 +57,7 @@ export default function PortalLayout({ children }) {
           />
         )}
 
-        {/* Main Content */}
         <div className="flex-1 flex flex-col min-h-screen">
-          {/* Spacer for mobile header */}
           <div className="md:hidden h-[57px]" />
 
           <Navbar />
@@ -72,7 +69,7 @@ export default function PortalLayout({ children }) {
         </div>
       </div>
 
-      {/* Add animation styles */}
+
       <style>
         {`@keyframes fadeIn {
           from { opacity: 0; }

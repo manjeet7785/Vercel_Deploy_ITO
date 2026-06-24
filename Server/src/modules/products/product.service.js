@@ -8,7 +8,17 @@ async function createProduct(data) {
   return Product.create(data);
 }
 
+async function getProductById(id) {
+  return Product.findById(id);
+}
+
+async function deleteProduct(id) {
+  return Product.findByIdAndDelete(id);
+}
+
 module.exports = {
   listProducts,
-  createProduct
+  createProduct,
+  getProductById,
+  deleteProduct
 };

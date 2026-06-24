@@ -39,7 +39,7 @@ export default function Navbar() {
   }, []);
 
   useEffect(() => {
-    
+
     setIsMobileMenuOpen(false);
     setIsUserMenuOpen(false);
   }, [location]);
@@ -70,7 +70,7 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6">
         <div className="flex justify-between items-center h-14 sm:h-16">
 
-          
+
           <div className="flex items-center">
             <Link to="/" className="flex items-center space-x-2 group">
               <div className="h-8 w-8 bg-[#0f4c75] rounded-lg flex items-center justify-center transition-transform group-hover:scale-105">
@@ -80,7 +80,7 @@ export default function Navbar() {
             </Link>
           </div>
 
-          {/* Desktop Navigation (MD screens and above) */}
+
           <div className="hidden md:flex items-center space-x-1 lg:space-x-2">
             {navLinks.map((link) => (
               <Link
@@ -100,7 +100,7 @@ export default function Navbar() {
 
             {user ? (
               <div className="flex items-center gap-2 ml-4">
-                {/* Notifications */}
+
                 <Link to="/crm/notifications" className="relative p-2 rounded-lg text-[#334e68] hover:text-[#0f4c75] hover:bg-[#0f4c75]/10 transition-colors">
                   <FiBell size={20} />
                   {unreadCount > 0 && (
@@ -110,7 +110,7 @@ export default function Navbar() {
                   )}
                 </Link>
 
-                {/* User Menu Dropdown */}
+
                 <div className="relative">
                   <button
                     onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
@@ -130,7 +130,9 @@ export default function Navbar() {
                         <div className="px-4 py-2 border-b border-[#cbd5e1]">
                           <p className="text-sm font-medium text-[#102a43]">{user?.fullName}</p>
                           <p className="text-xs text-[#334e68]">{user?.email}</p>
-                          <span className="inline-block mt-1 text-xs bg-[#f5a524] px-2 py-0.5 rounded-full">{user?.role}</span>
+                          <span className="inline-block mt-1 text-xs bg-[#f5a524] px-2 py-0.5 rounded-full">
+                            {user?.employeeId?.startsWith('CL_') ? 'CLIENT' : user?.role}
+                          </span>
                         </div>
                         {!user?.employeeId?.startsWith('CL_') && (
                           <Link to="/crm/dashboard" className="flex items-center space-x-2 px-4 py-2 text-sm text-[#334e68] hover:bg-[#f8fafc]" onClick={() => setIsUserMenuOpen(false)}>
@@ -193,7 +195,9 @@ export default function Navbar() {
                   </div>
                 </div>
                 <div className="mt-2">
-                  <span className="text-xs bg-[#f5a524] px-2 py-0.5 rounded-full">{user?.role}</span>
+                  <span className="text-xs bg-[#f5a524] px-2 py-0.5 rounded-full">
+                    {user?.employeeId?.startsWith('CL_') ? 'CLIENT' : user?.role}
+                  </span>
                 </div>
               </div>
             )}

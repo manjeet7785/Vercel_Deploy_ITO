@@ -77,10 +77,25 @@ export default function Products() {
   const products = [...dbProducts, ...staticProducts];
 
   const filteredProducts = products.filter(product => {
-    const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.origin.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = category === 'all' || product.category === category;
+    const name = product.name || '';
+    const description = product.description || '';
+    const origin = product.origin || '';
+
+    const matchesSearch = name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      origin.toLowerCase().includes(searchTerm.toLowerCase());
+
+    let matchesCategory = false;
+    if (category === 'all') {
+      matchesCategory = true;
+    } else if (category === 'stone') {
+      matchesCategory = product.category === 'stone' || product.category === 'natural_stones';
+    } else if (category === 'rice') {
+      matchesCategory = product.category === 'rice' || product.category === 'rice_commodities';
+    } else {
+      matchesCategory = product.category === category;
+    }
+
     return matchesSearch && matchesCategory;
   });
 
@@ -91,7 +106,6 @@ export default function Products() {
         <p className="text-gray-600 mt-4">Discover our wide range of premium quality products</p>
       </div>
 
-      {/* Filters */}
       <div className="mb-8">
         <div className="flex flex-col md:flex-row gap-4">
           <div className="flex-1 relative">
@@ -118,7 +132,7 @@ export default function Products() {
         </div>
       </div>
 
-      {/* Products Grid */}
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {filteredProducts.map(product => (
           <div key={product._id || product.id} className="card hover:shadow-lg transition">
