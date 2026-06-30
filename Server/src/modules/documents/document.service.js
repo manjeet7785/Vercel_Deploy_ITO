@@ -42,11 +42,16 @@ async function uploadDoc({ ownerType, ownerId, accessLevel = 'RESTRICTED', file,
     fileName: file.originalname,
     mimeType: file.mimetype,
     storagePath: file.path,
+    fileData: fileBuffer,
     uploadedBy: user ? user._id : null,
     accessLevel,
     checksum,
     virusScanStatus: 'CLEAN' 
   });
+
+  if (fs.existsSync(file.path)) {
+    fs.unlinkSync(file.path);
+  }
 
   await recordAudit({
     actorId: user ? user._id : null,

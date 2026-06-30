@@ -87,7 +87,14 @@ async function revealSensitiveData(req, res, next) {
       }
 
       const lead = await Lead.findById(dispatch.leadId);
-      if (!lead || !canAccessLead(req.user, lead)) {
+      let allowed = false;
+      if (lead) {
+        allowed = canAccessLead(req.user, lead);
+      } else {
+        allowed = ['ADMIN', 'MANAGER', 'PROCUREMENT'].includes(req.user.role) || req.user.dispatchPermission === true;
+      }
+
+      if (!allowed) {
         await raiseAlert({
           actorId: req.user._id,
           alertType: 'OWNERSHIP_FORBIDDEN',

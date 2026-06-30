@@ -27,11 +27,11 @@ export default function Dispatches() {
 
   const [selectedDispatchId, setSelectedDispatchId] = useState(null);
 
-  
+
   const [revealedPhones, setRevealedPhones] = useState({});
   const [revealReason, setRevealReason] = useState('');
 
-  
+
   const [proofFile, setProofFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
 
@@ -239,7 +239,7 @@ export default function Dispatches() {
 
   return (
     <div className="space-y-6">
-      
+
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Dispatch & Transport</h1>
@@ -332,12 +332,21 @@ export default function Dispatches() {
                     {/* Delivery Proof doc link */}
                     <td className="py-4 px-6">
                       {dispatch.proofDocumentId ? (
-                        <button
-                          onClick={() => handleDownloadProof(dispatch.proofDocumentId, dispatch.truckNo)}
-                          className="inline-flex items-center gap-1 text-xs text-indigo-600 hover:text-indigo-800 font-semibold hover:underline"
-                        >
-                          <FiFileText /> View Proof.pdf
-                        </button>
+                        <div className="flex flex-col space-y-1 items-start">
+                          <button
+                            onClick={() => handleDownloadProof(dispatch.proofDocumentId, dispatch.truckNo)}
+                            className="inline-flex items-center gap-1 text-xs text-indigo-600 hover:text-indigo-800 font-semibold hover:underline"
+                          >
+                            <FiFileText /> View Proof.pdf
+                          </button>
+                          <button
+                            onClick={() => handleOpenUploadModal(dispatch._id)}
+                            className="inline-flex items-center gap-1 text-[10px] font-bold text-slate-500 hover:text-indigo-600 border border-slate-200 px-1.5 py-0.5 rounded bg-slate-50 hover:bg-slate-100 transition"
+                            title="Re-upload or replace proof document"
+                          >
+                            <FiUpload /> Re-upload
+                          </button>
+                        </div>
                       ) : (
                         <div className="space-y-1">
                           <span className="text-xs text-slate-400 italic block">No proof uploaded</span>
@@ -350,6 +359,7 @@ export default function Dispatches() {
                         </div>
                       )}
                     </td>
+
 
                     {/* Actions dropdown status */}
                     <td className="py-4 px-6 text-center">

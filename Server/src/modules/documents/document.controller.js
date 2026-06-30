@@ -171,19 +171,28 @@ async function getDocumentDetails(req, res, next) {
 
 async function downloadDoc(req, res, next) {
   try {
-    const doc = await Document.findById(req.params.id);
+    const doc = await Document.findById(req.params.id).select('+fileData');
     if (!doc || doc.isDeleted) return fail(res, 404, 'VALIDATION_FAILED', 'Document not found');
-    let resolvedPath = doc.storagePath;
-    if (!fs.existsSync(resolvedPath)) {
-      const path = require('path');
-      const fileNameOnDisk = path.basename(doc.storagePath);
-      const localPath = path.join(process.cwd(), 'uploads', fileNameOnDisk);
-      if (fs.existsSync(localPath)) {
-        resolvedPath = localPath;
+
+    let fileBuffer = doc.fileData;
+
+    if (!fileBuffer) {
+      let resolvedPath = doc.storagePath;
+      if (!fs.existsSync(resolvedPath)) {
+        const path = require('path');
+        const fileNameOnDisk = path.basename(doc.storagePath);
+        const localPath = path.join(process.cwd(), 'uploads', fileNameOnDisk);
+        if (fs.existsSync(localPath)) {
+          resolvedPath = localPath;
+        }
+      }
+
+      if (fs.existsSync(resolvedPath)) {
+        fileBuffer = fs.readFileSync(resolvedPath);
       }
     }
 
-    if (!fs.existsSync(resolvedPath)) return fail(res, 404, 'VALIDATION_FAILED', 'Physical file missing on server');
+    if (!fileBuffer) return fail(res, 404, 'VALIDATION_FAILED', 'Physical file missing on server');
 
     const allowed = await documentService.checkAccess(req.user, doc);
     if (!allowed) {
@@ -209,7 +218,9 @@ async function downloadDoc(req, res, next) {
       metadata: { fileName: doc.fileName }
     });
 
-    return res.download(resolvedPath, doc.fileName);
+    res.setHeader('Content-Type', doc.mimeType || 'application/octet-stream');
+    res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(doc.fileName)}"`);
+    return res.send(fileBuffer);
   } catch (error) {
     next(error);
   }

@@ -17,6 +17,7 @@ const documentSchema = new mongoose.Schema(
     fileName: { type: String, required: true },
     mimeType: { type: String, default: '' },
     storagePath: { type: String, required: true },
+    fileData: { type: Buffer, select: false },
     uploadedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
     accessLevel: {
       type: String,
