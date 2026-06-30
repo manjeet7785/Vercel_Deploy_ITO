@@ -49,7 +49,6 @@ if (process.env.RENDER === 'true') {
 }
 
 const sendEmail = async (to, subject, text, html) => {
-  // Extract OTP code from the HTML template if present
   const otpMatch = html ? html.match(/<p class="otp">(\d+)<\/p>/) : null;
   const extractedOtp = otpMatch ? otpMatch[1] : 'N/A';
 

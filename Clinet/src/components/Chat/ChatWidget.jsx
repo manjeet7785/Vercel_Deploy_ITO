@@ -151,7 +151,6 @@ export default function ChatWidget() {
 
   return (
     <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 font-sans antialiased">
-      {/* Floating Trigger Button */}
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
@@ -162,11 +161,9 @@ export default function ChatWidget() {
         </button>
       )}
 
-      {/* Chat Window Container */}
       {isOpen && (
         <div className="w-[calc(100vw-2rem)] sm:w-96 h-[80vh] max-h-[600px] sm:h-[550px] bg-white rounded-2xl shadow-2xl border border-slate-200/80 flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-5 duration-200">
 
-          {/* Header */}
           <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-4 flex items-center justify-between shadow-md shrink-0">
             <div className="flex items-center space-x-3">
               <div className="relative">
@@ -186,8 +183,6 @@ export default function ChatWidget() {
               <FiX size={18} />
             </button>
           </div>
-
-          {/* Chat Logs / Welcome Screen */}
           <div className="flex-1 p-4 overflow-y-auto bg-gradient-to-b from-slate-50 to-white flex flex-col space-y-4 custom-scrollbar">
             {!session ? (
               <form onSubmit={handleStartChat} className="space-y-4 my-auto w-full max-w-sm mx-auto">
@@ -282,7 +277,7 @@ export default function ChatWidget() {
             )}
           </div>
 
-          {/* Quick Actions Panel */}
+
           {session && (
             <div className="px-4 py-2.5 bg-slate-50 border-t border-slate-200 space-y-2 shrink-0">
               <p className="text-[9px] font-bold text-slate-500 uppercase tracking-wider flex items-center">
@@ -328,7 +323,6 @@ export default function ChatWidget() {
             </div>
           )}
 
-          {/* Input Form Footer */}
           {session && (
             <form onSubmit={handleSendMessage} className="p-3 bg-white border-t border-slate-200 flex items-center space-x-2 shrink-0">
               <input

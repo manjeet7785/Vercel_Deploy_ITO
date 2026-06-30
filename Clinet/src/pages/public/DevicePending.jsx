@@ -36,7 +36,7 @@ const DevicePending = () => {
             toast.error('Device is still pending approval. Please wait or contact your Admin.');
           }
         } else {
-          
+          // If no matching device found, construct a placeholder info
           setDeviceInfo({
             deviceHash: deviceHash || 'N/A',
             deviceName: navigator.userAgent.split(') ')[0]?.split('(')[1] || 'Unknown Browser/Device',
@@ -166,12 +166,7 @@ const DevicePending = () => {
           </div>
 
         </div>
-        <div className="mt-4 p-4 bg-amber-50/70 rounded-2xl border border-amber-100 flex items-start gap-3">
-          <FiAlertTriangle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5 animate-pulse" />
-          <p className="text-xs text-amber-800 leading-relaxed font-medium">
-            <strong>Notice:</strong> If you are not an ITO employee, please do not attempt Employee Login or Employee Signup.
-          </p>
-        </div>
+        <p className='text-center text-xs text-gray-400'>If Your Not Employee in ITO, Don't try to EmployeeLogin or EmployeeSignup </p>
       </div>
     </div>
   );

@@ -2,17 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { leadsApi } from '../../api/leads';
 import { useAuth } from '../../hooks/useAuth';
-import { 
-  FiCheckSquare, 
-  FiSearch, 
-  FiEye, 
-  FiEdit, 
-  FiCalendar, 
-  FiAlertCircle, 
-  FiGrid, 
-  FiMapPin, 
-  FiLayers, 
-  FiClock, 
+import {
+  FiCheckSquare,
+  FiSearch,
+  FiEye,
+  FiEdit,
+  FiCalendar,
+  FiAlertCircle,
+  FiGrid,
+  FiMapPin,
+  FiLayers,
+  FiClock,
   FiTrendingUp,
   FiX
 } from 'react-icons/fi';
@@ -24,18 +24,18 @@ export default function Tasks() {
   const [leads, setLeads] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [activeTab, setActiveTab] = useState('PENDING'); 
+  const [activeTab, setActiveTab] = useState('PENDING');
   const [selectedLead, setSelectedLead] = useState(null);
   const [showPerformModal, setShowPerformModal] = useState(false);
-  
-  
-  const [actionType, setActionType] = useState('STAGE_CHANGE'); 
+
+
+  const [actionType, setActionType] = useState('STAGE_CHANGE');
   const [nextStage, setNextStage] = useState('');
   const [activityNote, setActivityNote] = useState('');
   const [nextFollowup, setNextFollowup] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
-  
+
   const allowedTransitions = {
     NEW_LEAD: ['ASSIGNED', 'CLOSED_LOST'],
     ASSIGNED: ['CONTACTED', 'CLOSED_LOST'],
@@ -75,8 +75,8 @@ export default function Tasks() {
     setSelectedLead(lead);
     setActivityNote('');
     setNextFollowup('');
-    
-    
+
+
     const options = allowedTransitions[lead.stage] || [];
     if (options.length > 0) {
       setActionType('STAGE_CHANGE');
@@ -85,7 +85,7 @@ export default function Tasks() {
       setActionType('ACTIVITY_ONLY');
       setNextStage('');
     }
-    
+
     setShowPerformModal(true);
   };
 
@@ -114,7 +114,7 @@ export default function Tasks() {
 
       if (response.success) {
         toast.success(
-          actionType === 'STAGE_CHANGE' 
+          actionType === 'STAGE_CHANGE'
             ? `Task stage successfully updated to ${getStageDisplay(nextStage)}! 🎉`
             : 'Activity progress log added successfully! 📋'
         );
@@ -129,7 +129,7 @@ export default function Tasks() {
     }
   };
 
-  
+
   const getStageColor = (stage) => {
     const colors = {
       NEW_LEAD: 'bg-blue-50 text-blue-700 border-blue-100',
@@ -147,15 +147,15 @@ export default function Tasks() {
     return colors[stage] || 'bg-slate-50 text-slate-700 border-slate-100';
   };
 
-  
+
   const filteredLeads = leads.filter(lead => {
-    const matchesSearch = 
+    const matchesSearch =
       lead.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       lead.leadCode.toLowerCase().includes(searchTerm.toLowerCase()) ||
       lead.productCategory.toLowerCase().includes(searchTerm.toLowerCase());
 
     const isClosed = lead.stage === 'CLOSED_WON' || lead.stage === 'CLOSED_LOST';
-    const matchesTab = 
+    const matchesTab =
       activeTab === 'ALL' ||
       (activeTab === 'PENDING' && !isClosed) ||
       (activeTab === 'COMPLETED' && isClosed);
@@ -163,7 +163,7 @@ export default function Tasks() {
     return matchesSearch && matchesTab;
   });
 
-  
+
   const totalTasks = leads.length;
   const pendingCount = leads.filter(l => l.stage !== 'CLOSED_WON' && l.stage !== 'CLOSED_LOST').length;
   const completedCount = leads.filter(l => l.stage === 'CLOSED_WON').length;
@@ -171,7 +171,7 @@ export default function Tasks() {
 
   return (
     <div className="space-y-6">
-      
+
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Task Performance Board</h1>
@@ -222,7 +222,7 @@ export default function Tasks() {
         </div>
       </div>
 
-      
+
       <div className="card p-4 bg-white shadow-sm border border-slate-100 rounded-2xl flex flex-col md:flex-row gap-4 items-center justify-between">
         <div className="flex-1 w-full relative">
           <FiSearch className="absolute left-3.5 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -240,8 +240,8 @@ export default function Tasks() {
           <button
             onClick={() => setActiveTab('PENDING')}
             className={`flex-1 md:flex-initial px-4 py-2 rounded-lg text-xs font-semibold uppercase tracking-wider transition ${activeTab === 'PENDING'
-                ? 'bg-white text-indigo-600 shadow-sm'
-                : 'text-slate-500 hover:text-slate-800'
+              ? 'bg-white text-indigo-600 shadow-sm'
+              : 'text-slate-500 hover:text-slate-800'
               }`}
           >
             Pending ({pendingCount})
@@ -249,8 +249,8 @@ export default function Tasks() {
           <button
             onClick={() => setActiveTab('COMPLETED')}
             className={`flex-1 md:flex-initial px-4 py-2 rounded-lg text-xs font-semibold uppercase tracking-wider transition ${activeTab === 'COMPLETED'
-                ? 'bg-white text-indigo-600 shadow-sm'
-                : 'text-slate-500 hover:text-slate-800'
+              ? 'bg-white text-indigo-600 shadow-sm'
+              : 'text-slate-500 hover:text-slate-800'
               }`}
           >
             Closed ({completedCount + lostCount})
@@ -258,8 +258,8 @@ export default function Tasks() {
           <button
             onClick={() => setActiveTab('ALL')}
             className={`flex-1 md:flex-initial px-4 py-2 rounded-lg text-xs font-semibold uppercase tracking-wider transition ${activeTab === 'ALL'
-                ? 'bg-white text-indigo-600 shadow-sm'
-                : 'text-slate-500 hover:text-slate-800'
+              ? 'bg-white text-indigo-600 shadow-sm'
+              : 'text-slate-500 hover:text-slate-800'
               }`}
           >
             All ({totalTasks})
@@ -282,13 +282,13 @@ export default function Tasks() {
           {filteredLeads.map((lead) => {
             const isClosed = lead.stage === 'CLOSED_WON' || lead.stage === 'CLOSED_LOST';
             const availableOptions = allowedTransitions[lead.stage] || [];
-            
+
             return (
-              <div 
-                key={lead._id} 
+              <div
+                key={lead._id}
                 className="card flex flex-col justify-between hover:shadow-lg transition-all border border-slate-100 hover:border-slate-200 bg-white rounded-2xl p-6 shadow-sm group"
               >
-                <div 
+                <div
                   onClick={() => navigate(`/crm/leads/${lead._id}`)}
                   className="cursor-pointer hover:opacity-90 transition-opacity"
                 >
@@ -415,8 +415,8 @@ export default function Tasks() {
                       if (ops.length > 0) setNextStage(ops[0]);
                     }}
                     className={`py-3 px-4 rounded-xl border text-xs font-bold flex flex-col items-center gap-1.5 transition-all text-center ${actionType === 'STAGE_CHANGE'
-                        ? 'border-indigo-600 bg-indigo-50/50 text-indigo-700 ring-1 ring-indigo-600'
-                        : 'border-slate-200 text-slate-600 hover:bg-slate-50'
+                      ? 'border-indigo-600 bg-indigo-50/50 text-indigo-700 ring-1 ring-indigo-600'
+                      : 'border-slate-200 text-slate-600 hover:bg-slate-50'
                       }`}
                   >
                     <FiLayers size={18} />
@@ -430,8 +430,8 @@ export default function Tasks() {
                       setNextStage('');
                     }}
                     className={`py-3 px-4 rounded-xl border text-xs font-bold flex flex-col items-center gap-1.5 transition-all text-center ${actionType === 'ACTIVITY_ONLY'
-                        ? 'border-indigo-600 bg-indigo-50/50 text-indigo-700 ring-1 ring-indigo-600'
-                        : 'border-slate-200 text-slate-600 hover:bg-slate-50'
+                      ? 'border-indigo-600 bg-indigo-50/50 text-indigo-700 ring-1 ring-indigo-600'
+                      : 'border-slate-200 text-slate-600 hover:bg-slate-50'
                       }`}
                   >
                     <FiTrendingUp size={18} />
@@ -440,7 +440,6 @@ export default function Tasks() {
                 </div>
               </div>
 
-              {/* Dynamic Next Stage Selector */}
               {actionType === 'STAGE_CHANGE' && (
                 <div>
                   <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">
@@ -462,17 +461,14 @@ export default function Tasks() {
                       ))
                     )}
                   </select>
-                  <p className="text-[10px] text-slate-400 mt-1.5 leading-relaxed">
-                    * Stages correspond to the standard business process workflow. 
-                    Please progress tasks in accordance with client agreement.
-                  </p>
+                  {/* baad me add krunga chart */}
                 </div>
               )}
 
               {/* Action Note/Remarks */}
               <div>
                 <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">
-                  Activity Details / Remarks *
+                  Activity Details *
                 </label>
                 <textarea
                   required
@@ -480,7 +476,7 @@ export default function Tasks() {
                   value={activityNote}
                   onChange={(e) => setActivityNote(e.target.value)}
                   className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm placeholder:text-slate-400"
-                  placeholder="Describe your progress (e.g. Called client, shared price checklist, scheduled dispatch schedule...)"
+                  placeholder="Describe your progress"
                 />
               </div>
 

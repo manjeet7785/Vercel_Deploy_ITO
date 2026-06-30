@@ -1,6 +1,7 @@
 function generateOtp() {
     const otp = Math.floor(100000 + Math.random() * 900000);
     return otp.toString();
+    // retrun '123456';
 }
 function getOtpHtml(otp) {
     return `<!DOCTYPE html>

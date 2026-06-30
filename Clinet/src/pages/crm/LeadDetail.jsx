@@ -532,30 +532,23 @@ export default function LeadDetail() {
 
                 return (
                   <React.Fragment key={stage}>
-                    {/* Step Button */}
                     <button
                       onClick={() => isClickable && handleStageChange(stage)}
                       disabled={!isClickable}
                       className={`flex flex-col items-center justify-center p-3 rounded-xl border text-center transition-all duration-200 flex-1 mx-1.5 focus:outline-none select-none relative group ${btnStyle}`}
                     >
-                      {/* Badge / Step Number */}
                       <span className={`flex items-center justify-center w-6 h-6 rounded-full text-[10px] font-bold mb-2 transition-all ${badgeStyle}`}>
                         {isCompleted ? <FiCheck className="w-3.5 h-3.5" /> : idx + 1}
                       </span>
-                      
-                      {/* Icon */}
                       <StageIcon className={`w-5 h-5 mb-1.5 transition-transform ${isClickable ? 'group-hover:scale-110' : ''}`} />
                       
-                      {/* Stage Label */}
                       <span className="text-xs font-semibold whitespace-nowrap">{details.label}</span>
                       
-                      {/* Tooltip description */}
                       <span className="absolute -top-10 scale-0 transition-all duration-150 rounded bg-slate-800 p-2 text-white text-[10px] whitespace-nowrap shadow-md group-hover:scale-100 z-10">
                         {details.desc || stage.replace(/_/g, ' ')}
                       </span>
                     </button>
 
-                    {/* Connecting line */}
                     {idx < activeStages.length - 1 && (
                       <div className="flex-1 h-[2px] min-w-[20px] max-w-[50px] relative">
                         <div className={`absolute inset-0 transition-all duration-500 ${isCompleted ? 'bg-emerald-500' : 'bg-slate-200'}`}></div>
@@ -567,7 +560,6 @@ export default function LeadDetail() {
             </div>
           </div>
 
-          {/* Separator / Sub-header for Outcomes */}
           <div className="relative my-6 flex items-center justify-center">
             <div className="absolute inset-0 flex items-center" aria-hidden="true">
               <div className="w-full border-t border-slate-100"></div>
@@ -577,9 +569,7 @@ export default function LeadDetail() {
             </div>
           </div>
 
-          {/* Outcome Buttons Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Closed Won Card Button */}
             {(() => {
               const canTransitionToWon = allowedTransitions[currentStage]?.includes('CLOSED_WON');
               return (
@@ -618,7 +608,6 @@ export default function LeadDetail() {
               );
             })()}
 
-            {/* Closed Lost Card Button */}
             {(() => {
               const canTransitionToLost = allowedTransitions[currentStage]?.includes('CLOSED_LOST');
               return (
@@ -658,7 +647,6 @@ export default function LeadDetail() {
             })()}
           </div>
 
-          {/* Celebratory Banner if CLOSED_WON */}
           {isClosedWon && (
             <div className="mt-4 p-4 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white flex items-center justify-between shadow-md shadow-emerald-500/10 animate-fade-in">
               <div className="flex items-center space-x-3">
@@ -673,7 +661,6 @@ export default function LeadDetail() {
         </div>
       </div>
 
-      {/* Activities Timeline Container */}
       <div className="card p-4 sm:p-6">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Activity Timeline</h2>
         <div className="space-y-4">
@@ -696,7 +683,6 @@ export default function LeadDetail() {
         </div>
       </div>
 
-      {/* Add Activity Modal */}
       {showActivityModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
           <div className="bg-white rounded-xl p-5 sm:p-6 w-full max-w-md my-8">
@@ -747,7 +733,6 @@ export default function LeadDetail() {
         </div>
       )}
 
-      {/* Request Quotation Modal */}
       {showQuotationModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
           <div className="bg-white rounded-xl p-5 sm:p-6 w-full max-w-md my-8">
@@ -794,7 +779,6 @@ export default function LeadDetail() {
         </div>
       )}
 
-      {/* Security Access Audit Modal */}
       {showWarningModal && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto">
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden transform transition-all border border-slate-100 my-8">

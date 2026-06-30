@@ -74,12 +74,10 @@ function checkPermission(...permissionNames) {
       return fail(res, 401, 'AUTH_INVALID_CREDENTIALS', 'Unauthorized: Authentication required', [], req);
     }
     
-    // Admins bypass all permission checks
     if (req.user.role === 'ADMIN') {
       return next();
     }
     
-    // Checks if user has AT LEAST one of the required permissions (either explicitly or via role defaults)
     const hasAnyPermission = permissionNames.some(perm => {
       if (req.user[perm] === true) return true;
       const rolePerms = rolePermissions[req.user.role];

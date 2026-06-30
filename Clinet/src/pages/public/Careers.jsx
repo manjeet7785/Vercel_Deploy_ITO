@@ -106,7 +106,6 @@ export default function Careers() {
     }
 
     setSubmitting(true);
-    // Simulate API request
     setTimeout(() => {
       setSubmitting(false);
       setSubmitted(true);
@@ -128,7 +127,6 @@ export default function Careers() {
 
   return (
     <div className="bg-slate-50 min-h-screen">
-      {/* Hero Section */}
       <section className="bg-gradient-to-r from-blue-900 to-indigo-950 text-white py-20 px-4 sm:px-6 lg:px-8 text-center relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-800/30 via-transparent to-transparent opacity-50 pointer-events-none"></div>
         <div className="max-w-4xl mx-auto relative z-10">
@@ -149,8 +147,6 @@ export default function Careers() {
           </a>
         </div>
       </section>
-
-      {/* Perks and Culture */}
       <section className="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold text-slate-800">Why India Trade Overseas?</h2>
@@ -171,8 +167,6 @@ export default function Careers() {
           ))}
         </div>
       </section>
-
-      {/* Job Openings Section */}
       <section id="openings" className="py-16 bg-slate-100 border-y border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
@@ -212,11 +206,10 @@ export default function Careers() {
                     </div>
                   </div>
                   <button
-                    className={`px-4 py-2 text-sm font-semibold rounded-xl border transition-all duration-200 ${
-                      activeJob === job.id
+                    className={`px-4 py-2 text-sm font-semibold rounded-xl border transition-all duration-200 ${activeJob === job.id
                         ? 'bg-slate-200 border-slate-300 text-slate-700'
                         : 'bg-white border-blue-600 text-blue-600 hover:bg-blue-50'
-                    }`}
+                      }`}
                   >
                     {activeJob === job.id ? 'Show Less' : 'View Details'}
                   </button>
@@ -257,7 +250,6 @@ export default function Careers() {
         </div>
       </section>
 
-      {/* Application Form Section */}
       <section id="apply-form" className="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-2xl mx-auto bg-white rounded-3xl shadow-xl border border-slate-200 overflow-hidden">
           <div className="bg-gradient-to-r from-blue-800 to-indigo-900 text-white p-6 sm:p-8">

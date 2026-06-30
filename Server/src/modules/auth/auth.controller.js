@@ -216,7 +216,7 @@ async function requestOtp(req, res, next) {
     user.otpExpires = new Date(Date.now() + 15 * 60 * 1000);
     await user.save();
 
-    // Also write to otpModel (used by verifyEmail) so resend OTP works for email verification
+ 
     const otpHash = await bcrypt.hash(otp, 10);
     await otpModel.deleteMany({ email: user.email });
     await otpModel.create({
@@ -225,7 +225,6 @@ async function requestOtp(req, res, next) {
       otpHash
     });
 
-    // Send email (will log to console and gracefully handle failures)
     await sendEmail(user.email, 'Email Verification Code', null, getOtpHtml(otp));
 
     await recordAudit({
@@ -239,6 +238,8 @@ async function requestOtp(req, res, next) {
     });
 
     return ok(res, {}, 'OTP generated successfully', 200, req);
+    // return ok(res, { otp }, 'OTP generated successfully (Demo Mode)', 200, req);
+    
   } catch (error) {
     next(error);
   }
