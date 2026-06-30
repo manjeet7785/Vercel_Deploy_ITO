@@ -12,7 +12,7 @@ export default function Documents() {
   const [formData, setFormData] = useState({
     ownerType: 'LEAD',
     ownerId: '',
-    accessLevel: ''
+    accessLevel: 'RESTRICTED'
   });
 
   useEffect(() => {

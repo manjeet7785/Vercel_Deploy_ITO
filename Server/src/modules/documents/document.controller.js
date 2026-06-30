@@ -24,6 +24,11 @@ async function uploadDocument(req, res, next) {
       return fail(res, 400, 'VALIDATION_FAILED', 'ownerType is required');
     }
 
+    let resolvedAccessLevel = accessLevel;
+    if (!resolvedAccessLevel || resolvedAccessLevel.trim() === '') {
+      resolvedAccessLevel = ownerType === 'PUBLIC' ? 'PUBLIC' : 'RESTRICTED';
+    }
+
     let resolvedOwnerId = ownerId;
     if (ownerType !== 'PUBLIC') {
       if (!ownerId) {
@@ -101,7 +106,7 @@ async function uploadDocument(req, res, next) {
           return fail(res, 400, 'VALIDATION_FAILED', 'ownerId must be a valid ObjectId or email address');
         }
       }
-    } else if (accessLevel !== 'PUBLIC') {
+    } else if (resolvedAccessLevel !== 'PUBLIC') {
       fs.unlinkSync(req.file.path);
       return fail(res, 400, 'VALIDATION_FAILED', 'PUBLIC ownerType must use PUBLIC accessLevel');
     }
@@ -109,7 +114,7 @@ async function uploadDocument(req, res, next) {
     const doc = await documentService.uploadDoc({
       ownerType,
       ownerId: resolvedOwnerId,
-      accessLevel,
+      accessLevel: resolvedAccessLevel,
       file: req.file,
       user: req.user
     });
