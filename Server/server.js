@@ -8,18 +8,26 @@ const env = require('./src/config/env');
 const { connectDB } = require('./src/config/database');
 const { seedRoles } = require('./src/modules/users/roles/permission.service');
 
-const PORT = env.PORT;
+const PORT = env.PORT || 5000;
 
 async function startServer() {
   try {
     await connectDB();
-    app.listen(PORT, () => {
-      console.log(`Server is running on port ${PORT}`);
-    });
+    if (!process.env.VERCEL) {
+      app.listen(PORT, () => {
+        console.log(`Server is running on port ${PORT}`);
+      });
+    } else {
+      console.log('Server initialized on Vercel (serverless mode)');
+    }
   } catch (error) {
     console.error('Server boot failed:', error.message);
-    process.exit(1);
+    if (!process.env.VERCEL) {
+      process.exit(1);
+    }
   }
 }
 
 startServer();
+
+module.exports = app;
